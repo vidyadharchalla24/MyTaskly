@@ -1,0 +1,361 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import HomeImage from "../assets/home2.png";
+import FeatureImage1 from "../assets/home2.png";
+import FeatureImage2 from "../assets/home2.png";
+import FeatureImage3 from "../assets/home2.png";
+import FeatureImage4 from "../assets/home2.png";;
+import AboutImage from "../assets/home2.png";
+
+const LandingPage = () => {
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form Submitted:", formData);
+    alert("Your Feedback is submitted");
+    setFormData({ name: "", email: "", message: "" });
+  };
+
+  const aboutHighlights = [
+    { id: 1, text: "Seamlessly organize and prioritize your tasks." },
+    { id: 2, text: "Stay ahead with real-time tracking and deadlines." },
+    { id: 3, text: "Integrate with Google Calendar & Outlook." }
+  ];
+
+  const features = [
+    {
+      id: 1,
+      title: "Smart Task & Issue Management",
+      description:
+        "Easily create, prioritize, and track tasks. Assign priorities like Critical, High, Medium, and Low. Organize work with statuses like To Do, In Progress, Blocked, and Done.",
+      quote: "“Managing multiple priorities has never been this seamless. It keeps our workflow structured!”",
+      image: FeatureImage1,
+      reverse: false,
+    },
+    {
+      id: 2,
+      title: "Intuitive Kanban Board & Workflow",
+      description:
+        "Move tasks effortlessly with drag-and-drop functionality. Customize columns, track progress, and visualize workloads in real time.",
+      quote: "“The Kanban board transformed how we track tasks, making it clear and organized!”",
+      image: FeatureImage2,
+      reverse: true,
+    },
+    {
+      id: 3,
+      title: "Seamless Calendar Integration & Reminders",
+      description:
+        "Sync with Google Calendar & Outlook. Get deadline alerts, set recurring tasks, and track due dates to stay ahead.",
+      quote: "“Automated reminders keep me on schedule without missing any deadlines!”",
+      image: FeatureImage3,
+      reverse: false,
+    },
+    {
+      id: 4,
+      title: "Real-time Notifications & Collaboration",
+      description:
+        "Get instant push notifications and email alerts for task updates. Collaborate effectively with in-task comments and file sharing.",
+      quote: "“Notifications ensure I never miss an update, keeping my projects on track!”",
+      image: FeatureImage4,
+      reverse: true,
+    },
+  ];
+
+  const testimonialsData = [
+    {
+      name: "John Doe",
+      role: "Software Engineer",
+      quote: "This platform has completely transformed the way we work. The team collaboration features are outstanding!",
+    },
+    {
+      name: "Jane Smith",
+      role: "Project Manager",
+      quote: "A fantastic tool for managing projects and staying on top of deadlines. Highly recommended!",
+    },
+    {
+      name: "Michael Lee",
+      role: "Product Designer",
+      quote: "The intuitive UI and seamless integrations make this a must-have for any team.",
+    },
+  ];
+
+  return (
+    <div>
+
+      <section
+        id="home"
+        className="flex items-center justify-center min-h-screen bg-[#162436] text-white"
+      >
+        <div className="container mx-auto flex flex-col md:flex-row items-center">
+          {/* Left Content */}
+          <div className="md:w-1/2 p-6">
+            <h1 className="text-4xl font-bold">
+              <span className="block">Great software is</span>
+              <span className="block text-5xl mt-2 text-pink-400">
+                built by great teams
+              </span>
+            </h1>
+            <h3 className="text-lg mt-4">
+              We help build and manage a team of world-class developers to bring
+              your vision to life.
+            </h3>
+            <div className="mt-6 space-x-4">
+              <Link
+                to="/signup"
+                className="inline-block mt-6 px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition-all"
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Content - Image */}
+          <div className="md:w-1/2 p-6 flex justify-center">
+            <img
+              src={HomeImage}
+              alt="Illustration of developers working"
+              className="w-full max-w-lg rounded-lg"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="about" className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-6xl mx-auto px-6">
+
+          {/* Centered Heading */}
+          <div className="text-center mb-12">
+            <h2 className=" text-3xl font-bold text-center text-gray-900">
+              About <span className="text-purple-600">Us</span>
+            </h2>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center gap-12">
+
+            {/* Left Content - Image */}
+            <div className="md:w-1/2">
+              <img
+                src={AboutImage}
+                alt="Task Management Illustration"
+                className="w-full rounded-lg shadow-lg"
+              />
+            </div>
+
+            {/* Right Content - Text */}
+            <div className="md:w-1/2 text-center md:text-left">
+              <h3 className="text-2xl font-bold text-gray-800">
+                Stay Organized, Stay <span className="text-purple-600">Productive</span>
+              </h3>
+
+              <p className="text-lg text-gray-700 mt-4 leading-relaxed">
+                The <strong>Personal Goal Tracker</strong> is your all-in-one solution for managing
+                tasks, tracking progress, and staying focused on your goals. Designed for individuals
+                and teams, it blends the simplicity of a to-do list with powerful issue-tracking
+                features.
+              </p>
+
+              <div className="mt-6 space-y-4">
+                {aboutHighlights.map(({ id, text }) => (
+                  <div key={id} className="flex items-center gap-3">
+                    <span className="text-purple-600 text-xl">✔️</span>
+                    <p className="text-gray-700">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+
+          {features.map(({ id, title, description, quote, image, reverse }, index) => (
+            <div
+              key={id}
+              className={`flex flex-col md:flex-row ${reverse ? "md:flex-row-reverse" : ""} items-center gap-8 mt-16 p-8 rounded-lg shadow-lg ${index % 2 === 0 ? "bg-indigo-100" : "bg-purple-100"
+                }`}
+            >
+              <img
+                src={image}
+                alt={title}
+                className="w-full md:w-1/2 h-auto max-h-64 object-cover rounded-lg shadow-md"
+              />
+              <div className="md:w-1/2">
+                <h3 className="text-xl font-semibold">{title}</h3>
+                <p className="mt-4 text-gray-700">{description}</p>
+                <blockquote className="mt-4 p-4 border-l-4 border-purple-600 italic text-gray-800">
+                  {quote}
+                </blockquote>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="pricing" className="py-16 bg-gray-100">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-800">Pricing Plans</h2>
+          <p className="text-gray-600 mt-2">
+            Choose a plan that fits your personal or team workflow needs.
+          </p>
+
+          <div className="mt-8 flex flex-col md:flex-row justify-center gap-6">
+            {/* Basic Plan */}
+            <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+              <h3 className="text-xl font-semibold">Basic</h3>
+              <p className="text-3xl font-bold">Free</p>
+              <p className="text-gray-600">For individuals</p>
+              <ul className="mt-4 text-gray-700 text-left space-y-2">
+                <li>✔ Task & Issue Management</li>
+                <li>✔ Prioritization & Status Tracking</li>
+                <li>✔ Kanban Board & List View</li>
+                <li>✔ Due Date Tracking</li>
+              </ul>
+              <button className="mt-6 px-6 py-2 bg-blue-500 text-white rounded">
+                Choose Plan
+              </button>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="bg-blue-600 text-white p-6 rounded-lg shadow-lg w-80">
+              <h3 className="text-xl font-semibold">Pro</h3>
+              <p className="text-3xl font-bold">$9.99</p>
+              <p className="text-gray-200">Per User/Month</p>
+              <ul className="mt-4 text-left space-y-2">
+                <li>✔ Everything in Basic</li>
+                <li>✔ Task Dependencies</li>
+                <li>✔ Google Calendar & Outlook Integration</li>
+                <li>✔ Email Notifications & Reminders</li>
+              </ul>
+              <button className="mt-6 px-6 py-2 bg-white text-blue-600 rounded">
+                Choose Plan
+              </button>
+            </div>
+
+            {/* Advanced Plan */}
+            <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+              <h3 className="text-xl font-semibold">Advanced</h3>
+              <p className="text-3xl font-bold">$14.99</p>
+              <p className="text-gray-600">Per User/Month</p>
+              <ul className="mt-4 text-gray-700 text-left space-y-2">
+                <li>✔ Everything in Pro</li>
+                <li>✔ Team Collaboration & Assignments</li>
+                <li>✔ Advanced Reports & Analytics</li>
+                <li>✔ Task History & Version Control</li>
+              </ul>
+              <button className="mt-6 px-6 py-2 bg-blue-500 text-white rounded">
+                Choose Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" className="text-white py-16">
+        <h2 className="text-3xl text-black font-bold text-center mb-12">Contact Us</h2>
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+
+          {/* Left Section - Google Map & Contact Info */}
+          <div className="md:w-2/3 rounded-lg overflow-hidden p-10 flex flex-col gap-6">
+            <iframe
+              width="100%"
+              height="300"
+              className="rounded-lg"
+              title="map"
+              src="https://maps.google.com/maps?q=New York&output=embed"
+            ></iframe>
+
+            <div className="p-6 rounded-lg shadow-md text-indigo-600">
+              <h2 className="text-xl font-semibold">Contact Information</h2>
+              <p className="mt-3">1234 Street, New York, USA</p>
+              <p className="mt-2">Email: <a href="mailto:contact@email.com" className="text-indigo-600">contact@email.com</a></p>
+              <p className="mt-2">Phone: +1 123-456-7890</p>
+            </div>
+          </div>
+
+          {/* Right Section - Feedback Form */}
+          <div className="md:w-1/3 p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold">Send us a message</h2>
+            <p className="text-gray-400 mt-2">We had love to hear from you!</p>
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full p-3 text-black rounded border border-gray-600 focus:ring-2 focus:ring-indigo-400"
+              />
+
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full p-3 text-black rounded border border-gray-600 focus:ring-2 focus:ring-indigo-400"
+              />
+
+              <textarea
+                name="message"
+                placeholder="Your Message"
+                value={formData.message}
+                onChange={handleChange}
+                required
+                className="w-full p-3 text-black rounded border border-gray-600 focus:ring-2 focus:ring-indigo-400"
+              ></textarea>
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-white font-semibold"
+              >
+                Send Message
+              </button>
+            </form>
+
+            <p className="text-gray-500 text-sm mt-4">
+              We appreciate your feedback and will get back to you soon!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="testimonials" className="py-16 bg-gray-100">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-800">What Our Users Say</h2>
+          <div className="mt-12 grid md:grid-cols-3 gap-8">
+            {testimonialsData.map((testimonial, index) => (
+              <div key={index} className="bg-white p-6 rounded-lg shadow-lg">
+                <p className="text-gray-700 italic">"{testimonial.quote}"</p>
+                <h4 className="mt-4 font-semibold text-gray-900">{testimonial.name}</h4>
+                <p className="text-gray-500 text-sm">{testimonial.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export default LandingPage;
