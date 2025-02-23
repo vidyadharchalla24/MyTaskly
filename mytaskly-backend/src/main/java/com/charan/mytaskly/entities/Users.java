@@ -2,6 +2,7 @@ package com.charan.mytaskly.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -28,11 +29,21 @@ public class Users {
     @Column(nullable = false)
     private Role role;
 
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Subscriptions> subscriptions;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Organizations> organizations;
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<ProjectAssignments> projectAssignments;
+
     public Users() {
         super();
     }
 
-    public Users(String email, String password, String name, String imageUrl, Role role) {
+    public Users(UUID userId, String email, String password, String name, String imageUrl, Role role) {
+        this.userId = userId;
         this.email = email;
         this.password = password;
         this.name = name;
@@ -86,5 +97,29 @@ public class Users {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Subscriptions> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<Subscriptions> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
+    public List<Organizations> getOrganizations() {
+        return organizations;
+    }
+
+    public void setOrganizations(List<Organizations> organizations) {
+        this.organizations = organizations;
+    }
+
+    public List<ProjectAssignments> getProjectAssignments() {
+        return projectAssignments;
+    }
+
+    public void setProjectAssignments(List<ProjectAssignments> projectAssignments) {
+        this.projectAssignments = projectAssignments;
     }
 }
