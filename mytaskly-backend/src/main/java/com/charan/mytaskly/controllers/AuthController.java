@@ -36,18 +36,21 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> createToken(@Valid @RequestBody AuthRequest authRequest) throws Exception{
-        Authentication authentication = new UsernamePasswordAuthenticationToken(authRequest.getEmail(),authRequest.getPassword());
-        try{
-            authenticationManager.authenticate(authentication);
-        }catch (BadCredentialsException e){
-            System.out.println("Bad Credentials Exception");
+    public ResponseEntity<AuthResponse> createToken(@Valid @RequestBody AuthRequest authRequest) {
+        try {
+            Authentication authentication = new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword());
+            authenticationManager.authenticate(authentication); // This will throw BadCredentialsException if credentials are incorrect
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
+            String token = jwtTokenHelper.generateToken(userDetails);
+            AuthResponse authResponse = new AuthResponse(token);
+
+            return ResponseEntity.ok(authResponse);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Invalid email or password"));
         }
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
-        String token = jwtTokenHelper.generateToken(userDetails);
-        AuthResponse authResponse = new AuthResponse(token);
-        return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.OK);
     }
+
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UsersDto usersDto){

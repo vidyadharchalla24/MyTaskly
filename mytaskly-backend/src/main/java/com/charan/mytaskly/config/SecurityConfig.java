@@ -53,13 +53,13 @@ public class SecurityConfig {
                                 return corsConfiguration;
                             }
                         })
-                        )
+                )
                 .authorizeHttpRequests((requests) ->
-                requests
-                        .requestMatchers("/api/v1/register","/api/v1/login")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated());
+                        requests
+                                .requestMatchers("/api/v1/register","/api/v1/login","/api/v1/users/**","/api/v1/forgot-password/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated());
         http.exceptionHandling((exception)-> exception
                 .authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint())
                 .accessDeniedHandler(new CustomAccessDeniedHandler())

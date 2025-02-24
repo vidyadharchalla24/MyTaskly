@@ -3,6 +3,7 @@ package com.charan.mytaskly.entities;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +37,9 @@ public class Users {
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProjectAssignments> projectAssignments;
+
+    @OneToOne(mappedBy = "users",cascade = CascadeType.ALL,orphanRemoval = true)
+    private OneTimePassword oneTimePassword;
 
     public Users() {
         super();
