@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "sprints")
@@ -13,7 +12,7 @@ public class Sprints {
 
     @Id
     @Column(name = "sprint_id")
-    private UUID sprintId;
+    private String sprintId;
 
     @Column(name = "sprint_name")
     private String sprintName;
@@ -39,7 +38,7 @@ public class Sprints {
         super();
     }
 
-    public Sprints(UUID sprintId, String sprintName, Date startDate, Date endDate, SprintStatus sprintStatus) {
+    public Sprints(String sprintId, String sprintName, Date startDate, Date endDate, SprintStatus sprintStatus) {
         this.sprintId = sprintId;
         this.sprintName = sprintName;
         this.startDate = startDate;
@@ -47,11 +46,11 @@ public class Sprints {
         this.sprintStatus = sprintStatus;
     }
 
-    public UUID getSprintId() {
+    public String getSprintId() {
         return sprintId;
     }
 
-    public void setSprintId(UUID sprintId) {
+    public void setSprintId(String sprintId) {
         this.sprintId = sprintId;
     }
 

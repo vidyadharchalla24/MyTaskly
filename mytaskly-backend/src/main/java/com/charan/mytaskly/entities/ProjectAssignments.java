@@ -3,15 +3,13 @@ package com.charan.mytaskly.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "project_assignments")
 public class ProjectAssignments {
 
     @Id
     @Column(name = "project_assignments_id")
-    private UUID projectAssignmentsId;
+    private String projectAssignmentsId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -31,18 +29,18 @@ public class ProjectAssignments {
         super();
     }
 
-    public ProjectAssignments(UUID projectAssignmentsId, Role role, Users users, Projects projects) {
+    public ProjectAssignments(String projectAssignmentsId, Role role, Users users, Projects projects) {
         this.projectAssignmentsId = projectAssignmentsId;
         this.role = role;
         this.users = users;
         this.projects = projects;
     }
 
-    public UUID getProjectAssignmentsId() {
+    public String getProjectAssignmentsId() {
         return projectAssignmentsId;
     }
 
-    public void setProjectAssignmentsId(UUID projectAssignmentsId) {
+    public void setProjectAssignmentsId(String projectAssignmentsId) {
         this.projectAssignmentsId = projectAssignmentsId;
     }
 

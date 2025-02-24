@@ -3,8 +3,6 @@ package com.charan.mytaskly.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
-import java.util.UUID;
-
 
 @Entity
 @Table(name = "attachments")
@@ -12,7 +10,7 @@ public class Attachments {
 
     @Id
     @Column(name = "attachment_id")
-    private UUID attachmentId;
+    private String attachmentId;
 
     @Column(nullable = false)
     private String fileUrl;
@@ -30,18 +28,18 @@ public class Attachments {
         super();
     }
 
-    public Attachments(UUID attachmentId, String fileUrl, Issues issues, Users users) {
+    public Attachments(String attachmentId, String fileUrl, Issues issues, Users users) {
         this.attachmentId = attachmentId;
         this.fileUrl = fileUrl;
         this.issues = issues;
         this.users = users;
     }
 
-    public UUID getAttachmentId() {
+    public String getAttachmentId() {
         return attachmentId;
     }
 
-    public void setAttachmentId(UUID attachmentId) {
+    public void setAttachmentId(String attachmentId) {
         this.attachmentId = attachmentId;
     }
 

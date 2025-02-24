@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.List;
-import java.util.UUID;
 
 
 @Entity
@@ -13,7 +12,7 @@ public class Issues {
 
     @Id
     @Column(name = "issue_id")
-    private UUID issueId;
+    private String issueId;
 
     @Column(nullable = false)
     private String title;
@@ -54,7 +53,7 @@ public class Issues {
         super();
     }
 
-    public Issues(UUID issueId, String title, String description, IssueStatus issueStatus, IssuePriority issuePriority) {
+    public Issues(String issueId, String title, String description, IssueStatus issueStatus, IssuePriority issuePriority) {
         this.issueId = issueId;
         this.title = title;
         this.description = description;
@@ -62,11 +61,11 @@ public class Issues {
         this.issuePriority = issuePriority;
     }
 
-    public UUID getIssueId() {
+    public String getIssueId() {
         return issueId;
     }
 
-    public void setIssueId(UUID issueId) {
+    public void setIssueId(String issueId) {
         this.issueId = issueId;
     }
 

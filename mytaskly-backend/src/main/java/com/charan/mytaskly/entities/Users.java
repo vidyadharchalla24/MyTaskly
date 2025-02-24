@@ -3,7 +3,6 @@ package com.charan.mytaskly.entities;
 import jakarta.persistence.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -11,7 +10,7 @@ public class Users {
 
     @Id
     @Column(name = "user_id")
-    private UUID userId;
+    private String userId;
 
     @Column(unique = true,nullable = false)
     private String email;
@@ -42,7 +41,7 @@ public class Users {
         super();
     }
 
-    public Users(UUID userId, String email, String password, String name, String imageUrl, Role role) {
+    public Users(String userId, String email, String password, String name, String imageUrl, Role role) {
         this.userId = userId;
         this.email = email;
         this.password = password;
@@ -51,11 +50,11 @@ public class Users {
         this.role = role;
     }
 
-    public UUID getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

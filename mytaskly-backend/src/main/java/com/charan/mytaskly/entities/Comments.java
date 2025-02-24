@@ -3,15 +3,13 @@ package com.charan.mytaskly.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "comments")
 public class Comments {
 
     @Id
     @Column(name = "comment_id")
-    private UUID commentId;
+    private String commentId;
 
     @Column(nullable = false)
     private String Content;
@@ -29,18 +27,18 @@ public class Comments {
         super();
     }
 
-    public Comments(UUID commentId, String content, Issues issues, Users users) {
+    public Comments(String commentId, String content, Issues issues, Users users) {
         this.commentId = commentId;
         Content = content;
         this.issues = issues;
         this.users = users;
     }
 
-    public UUID getCommentId() {
+    public String getCommentId() {
         return commentId;
     }
 
-    public void setCommentId(UUID commentId) {
+    public void setCommentId(String commentId) {
         this.commentId = commentId;
     }
 

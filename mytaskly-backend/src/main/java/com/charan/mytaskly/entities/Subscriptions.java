@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Table(name = "subscriptions")
@@ -12,7 +11,7 @@ public class Subscriptions {
 
     @Id
     @Column(name = "subscriptions_id")
-    private UUID subscriptionsId;
+    private String subscriptionsId;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date startDate;
@@ -38,7 +37,7 @@ public class Subscriptions {
         super();
     }
 
-    public Subscriptions(UUID subscriptionsId, Date startDate, Date endDate, SubscriptionStatus status, Users user, SubscriptionPlan plan) {
+    public Subscriptions(String subscriptionsId, Date startDate, Date endDate, SubscriptionStatus status, Users user, SubscriptionPlan plan) {
         this.subscriptionsId = subscriptionsId;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -47,11 +46,11 @@ public class Subscriptions {
         this.plan = plan;
     }
 
-    public UUID getSubscriptionsId() {
+    public String getSubscriptionsId() {
         return subscriptionsId;
     }
 
-    public void setSubscriptionsId(UUID subscriptionsId) {
+    public void setSubscriptionsId(String subscriptionsId) {
         this.subscriptionsId = subscriptionsId;
     }
 
