@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import loginImage from "../../assets/home2.png";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import loginImage from "../../assets/feature.jpg";
 
 const Login = () => {
-
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
@@ -26,13 +24,14 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen">
-
+        <div className="flex min-h-screen items-center justify-center -mt-10">
+            {/* Left Image */}
             <div className="hidden md:flex w-1/2 items-center justify-center">
                 <img src={loginImage} alt="Login" className="w-3/4 h-auto rounded-lg shadow-lg" />
             </div>
 
-            <div className="w-full md:w-1/2 flex items-center justify-center">
+            {/* Login Form */}
+            <div className="w-full md:w-1/2 flex items-center justify-center ">
                 <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
                     <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Login</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">

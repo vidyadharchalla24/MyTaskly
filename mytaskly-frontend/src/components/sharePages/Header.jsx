@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import HomeImage from "../../assets/home2.png";
+import { FaUserCircle } from "react-icons/fa";
 
 const Header = () => {
   const location = useLocation();
@@ -33,6 +34,9 @@ const Header = () => {
           <button onClick={() => scrollToSection("testimonials")} className="mr-5 text-2xl hover:text-gray-900">Testimonials</button>
         </nav>
 
+        <Link to="/profile" className=" text-5xl">
+          <FaUserCircle />
+        </Link>
         <Link to="/login" className="inline-flex items-center bg-indigo-600 text-white text-xl border-0 py-2 px-4 rounded hover:bg-indigo-700">
           Login →
         </Link>
