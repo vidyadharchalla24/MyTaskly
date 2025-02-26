@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import signupImage from "../../assets/home2.png";
 
 const Signup = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -11,6 +13,7 @@ const Signup = () => {
     });
 
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
 
     const validate = () => {
         let newErrors = {};
@@ -51,11 +54,20 @@ const Signup = () => {
         setErrors({ ...errors, [name]: "" });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (validate()) {
-            console.log("Form submitted", formData);
-            alert("Signup successful!");
+        if (!validate()) return;
+
+        setLoading(true);
+        try {
+            const response = await axios.post("http://localhost:9091/api/v1/register", formData);
+            console.log(formData);
+            alert("Signup successful! Please log in.");
+            navigate("/login");
+        } catch (error) {
+            alert(error.response?.data?.message || "Signup failed. Try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -116,11 +128,27 @@ const Signup = () => {
                             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                         </div>
 
+                        <div>
+                            <label className="block text-gray-700">Confirm Password</label>
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                placeholder="Confirm your password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-2 border rounded-lg focus:outline-none ${
+                                    errors.confirmPassword ? "border-red-500" : "focus:ring-2 focus:ring-indigo-400"
+                                }`}
+                            />
+                            {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+                        </div>
+
                         <button
                             type="submit"
                             className="w-full py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition duration-300"
+                            disabled={loading}
                         >
-                            Sign Up
+                            {loading ? "Signing Up..." : "Sign Up"}
                         </button>
                     </form>
 

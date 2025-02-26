@@ -1,15 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import axios from "axios";
+import { TokenContext } from "../utils/TokenContext";
 
 const Profile = () => {
-    const userId = "123";
+    const { decodedToken } = useContext(TokenContext);
+    const userId = decodedToken?.user_id;
+
     const [user, setUser] = useState({});
     const [newData, setNewData] = useState({ name: "" });
     const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "" });
     const [showPasswordFields, setShowPasswordFields] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     useEffect(() => {
+        if (!userId) return;
+
         axios
             .get(`http://localhost:9091/api/v1/users/${userId}`)
             .then((response) => {
@@ -27,17 +33,7 @@ const Profile = () => {
         setPasswords({ ...passwords, [e.target.name]: e.target.value });
     };
 
-    const handleUpdate = () => {
-        axios
-            .put(`http://localhost:9091/api/v1/users/${userId}`, newData)
-            .then(() => alert("Profile updated successfully!"))
-            .catch((error) => console.error("Error updating profile:", error));
-    };
-
-    const handleTogglePassword = () => {
-        setShowPasswordFields(!showPasswordFields);
-    };
-
+    
     const handleChangePassword = async () => {
         if (!passwords.oldPassword || !passwords.newPassword) {
             alert("Please enter both old and new passwords.");
@@ -65,12 +61,69 @@ const Profile = () => {
         }
     };
 
+    const handleUpdate = () => {
+        axios
+            .put(`http://localhost:9091/api/v1/users/${userId}`, newData)
+            .then(() => alert("Profile updated successfully!"))
+            .catch((error) => console.error("Error updating profile:", error));
+    };
+
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0]);
+    };
+
+    // Upload profile picture
+    const handleUploadProfilePicture = async () => {
+        if (!selectedFile) {
+            alert("Please select an image first.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        try {
+            const response = await axios.post(
+                `http://localhost:9091/api/v1/users/${userId}/upload`,
+                formData
+            );
+
+            alert("Profile picture updated successfully!");
+            setUser({ ...user, profilePic: response.data });
+        } catch (error) {
+            console.error("Error uploading profile picture:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    };
+
+    // Remove profile picture
+    const handleRemoveProfilePicture = async () => {
+        if (!user.profilePic) {
+            alert("No profile picture to remove.");
+            return;
+        }
+
+        const confirmDelete = window.confirm("Are you sure you want to remove your profile picture?");
+        if (!confirmDelete) return;
+
+        try {
+            const response = await axios.delete(
+                `http://localhost:9091/api/v1/users/${userId}/remove`
+            );
+
+            alert(response.data);
+            setUser({ ...user, profilePic: null });
+        } catch (error) {
+            console.error("Error removing profile picture:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    };
+
     return (
-        <div className="max-w-lg mx-auto mt-12 p-8 bg-white shadow-lg rounded-lg border">
-            {/* Title */}
+        <div className="max-w-lg mx-auto mt-12 p-8 bg-white shadow-md rounded-lg border">
             <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Profile Settings</h2>
 
-            {/* Profile Picture Section */}
+            {/* 🔹 Profile Picture Section */}
             <div className="flex flex-col items-center mb-6">
                 <label className="relative cursor-pointer">
                     {user.profilePic ? (
@@ -86,15 +139,29 @@ const Profile = () => {
                         type="file"
                         accept="image/*"
                         className="absolute inset-0 opacity-0 cursor-pointer"
-                        onChange={() => {}}
+                        onChange={handleFileChange}
                     />
                 </label>
-                <p className="text-sm text-gray-500 mt-2">Click to upload photo</p>
+                <div className="mt-2 space-x-2">
+                    <button
+                        onClick={handleUploadProfilePicture}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                    >
+                        Upload Photo
+                    </button>
+                    {user.profilePic && (
+                        <button
+                            onClick={handleRemoveProfilePicture}
+                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                        >
+                            Remove Photo
+                        </button>
+                    )}
+                </div>
             </div>
 
-            {/* Profile Form */}
+            {/* 🔹 Profile Form */}
             <div className="space-y-4">
-                {/* Name Field */}
                 <div>
                     <label className="block text-gray-700 font-medium mb-1">Name</label>
                     <input
@@ -102,11 +169,10 @@ const Profile = () => {
                         name="name"
                         value={newData.name}
                         onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
 
-                {/* Email Field */}
                 <div>
                     <label className="block text-gray-700 font-medium mb-1">Email</label>
                     <input
@@ -117,52 +183,42 @@ const Profile = () => {
                     />
                 </div>
 
-                {/* Update Profile Button */}
-                <div className="mt-4">
-                    <button
-                        onClick={handleUpdate}
-                        className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-                    >
-                        Update Profile
-                    </button>
-                </div>
+                <button
+                    onClick={handleUpdate}
+                    className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+                >
+                    Update Profile
+                </button>
 
-                {/* Toggle Change Password */}
+                {/* 🔹 Change Password Section */}
                 <div className="flex items-center justify-between border-t pt-4 mt-4">
                     <label className="block text-gray-700 text-sm font-semibold">Change Password</label>
                     <input
                         type="checkbox"
-                        onChange={handleTogglePassword}
-                        className="cursor-pointer w-5 h-5 accent-blue-600"
+                        onChange={() => setShowPasswordFields(!showPasswordFields)}
+                        className="cursor-pointer w-5 h-5"
                     />
                 </div>
 
-                {/* Password Fields (Only Show When Toggle is ON) */}
                 {showPasswordFields && (
-                    <div className="mt-3">
-                        <div className="mb-3">
-                            <label className="block text-gray-700 text-sm font-semibold">Old Password</label>
-                            <input
-                                type="password"
-                                name="oldPassword"
-                                onChange={handlePasswordChange}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300"
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="block text-gray-700 text-sm font-semibold">New Password</label>
-                            <input
-                                type="password"
-                                name="newPassword"
-                                onChange={handlePasswordChange}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300"
-                            />
-                        </div>
-
-                        {/* Change Password Button */}
+                    <div className="mt-3 space-y-3">
+                        <input
+                            type="password"
+                            name="oldPassword"
+                            onChange={handlePasswordChange}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+                            placeholder="Old Password"
+                        />
+                        <input
+                            type="password"
+                            name="newPassword"
+                            onChange={handlePasswordChange}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+                            placeholder="New Password"
+                        />
                         <button
                             onClick={handleChangePassword}
-                            className="w-full bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition"
+                            className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700"
                         >
                             Save New Password
                         </button>
