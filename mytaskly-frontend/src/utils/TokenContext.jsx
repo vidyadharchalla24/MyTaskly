@@ -64,6 +64,7 @@ export const TokenProvider = ({ children }) => {
     } else {
       setDecodedToken(null);
       localStorage.removeItem("token");
+      
     }
   };
 
