@@ -1,6 +1,6 @@
-import { Navigate, Outlet } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../utils/TokenContext";
+import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = () => {
   const { decodedToken } = useContext(TokenContext);

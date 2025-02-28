@@ -5,7 +5,6 @@ import Footer from "./Footer";
 const Layout = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Fixed Header */}
       <Header />
 
       {/* Content starts below header */}
@@ -13,7 +12,6 @@ const Layout = () => {
         <Outlet />
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

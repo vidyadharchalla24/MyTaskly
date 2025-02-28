@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { BASE_URL } from "../../utils/api";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,25 +29,18 @@ const ResetPassword = () => {
 
     if (!newPassword.trim()) {
       newErrors.newPassword = "Password is required.";
-      // toast.error("Password is required.");
     } else if (newPassword.length < 8) {
       newErrors.newPassword = "Password must be at least 8 characters.";
-      // toast.error("Password must be at least 8 characters.");
     } else if (!/[A-Z]/.test(newPassword)) {
       newErrors.newPassword = "Include at least one uppercase letter.";
-      // toast.error("Include at least one uppercase letter.");
     } else if (!/\d/.test(newPassword)) {
       newErrors.newPassword = "Include at least one number.";
-      // toast.error("Include at least one number.");
     }
 
     if (!confirmPassword.trim()) {
       newErrors.confirmPassword = "Confirm Password is required.";
-      // toast.error("Confirm Password is required.");
-    } 
-    else if (confirmPassword !== newPassword) {
+    } else if (confirmPassword !== newPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
-      // toast.error("Passwords do not match.");
     }
 
     setErrors(newErrors);
@@ -59,19 +53,17 @@ const ResetPassword = () => {
     if (name === "confirmPassword") setConfirmPassword(value);
     setErrors({ ...errors, [name]: "" });
   };
-  
 
   const handleSetPassword = async () => {
-     if (!validatePasswords()) {
-          toast.error("Please fix the errors before proceeding.");
-          return;
-        }
-    
-   
+    if (!validatePasswords()) {
+      toast.error("Please fix the errors before proceeding.");
+      return;
+    }
+
     setLoading(true);
     try {
       await axios.post(
-        "http://localhost:9091/api/v1/forgot-password/set-password",
+        `${BASE_URL}/api/v1/forgot-password/set-password`,
         null,
         { params: { email, newPassword } }
       );
@@ -86,7 +78,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br bg-gray-100">
       <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
           Reset Password
@@ -101,7 +93,9 @@ const ResetPassword = () => {
               type="password"
               placeholder="Enter new password"
               className={`w-full p-3 border rounded-lg focus:outline-none transition duration-200 ${
-                errors.newPassword ? "border-red-500" : "focus:ring-2 focus:ring-blue-500"
+                errors.newPassword
+                  ? "border-red-500"
+                  : "focus:ring-2 focus:ring-blue-500"
               }`}
               value={newPassword}
               onChange={handleChange}
@@ -116,13 +110,17 @@ const ResetPassword = () => {
               type="password"
               placeholder="Confirm new password"
               className={`w-full p-3 border rounded-lg focus:outline-none transition duration-200 ${
-                errors.confirmPassword ? "border-red-500" : "focus:ring-2 focus:ring-blue-500"
+                errors.confirmPassword
+                  ? "border-red-500"
+                  : "focus:ring-2 focus:ring-blue-500"
               }`}
               value={confirmPassword}
               onChange={handleChange}
             />
             {errors.confirmPassword && (
-              <p className="text-red-500 text-l mt-1">{errors.confirmPassword}</p>
+              <p className="text-red-500 text-l mt-1">
+                {errors.confirmPassword}
+              </p>
             )}
           </div>
 

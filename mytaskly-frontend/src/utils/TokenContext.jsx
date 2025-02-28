@@ -1,85 +1,50 @@
-// import React, { createContext, useState, useEffect } from "react";
-// import { jwtDecode } from "jwt-decode"; 
-
-
-// export const TokenContext = createContext();
-// export const TokenProvider = ({ children }) => {
-//   const [decodedToken, setDecodedToken] = useState(null);
-
-//   useEffect(() => {
-  
-//       const token = localStorage.getItem("token");
-
-//       if (token) {
-//         try {
-//           const decoded = jwtDecode(token);
-//           setDecodedToken(decoded);
-//           console.log(decoded);
-//           localStorage.setItem("decodedToken", JSON.stringify(decoded));
-//         } catch (error) {
-//           console.error("Invalid token:", error);
-//           localStorage.removeItem("token");
-//           localStorage.removeItem("decodedToken");
-//           setDecodedToken(null);
-//         }
-//       } else {
-//         setDecodedToken(null);
-//         localStorage.removeItem("decodedToken");
-//       }
-//   }, []);
-
-//     useEffect(() => {
-//       console.log(decodedToken);
-//     }, [decodedToken]);
- 
-
-//   return (
-//     <TokenContext.Provider value={{ decodedToken }}>
-//       {children}
-//     </TokenContext.Provider>
-//   );
-// };
 import { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
 export const TokenContext = createContext();
 
 export const TokenProvider = ({ children }) => {
-  const [decodedToken, setDecodedToken] = useState(null);
+  const storedToken = localStorage.getItem("token");
+  const initialDecoded = storedToken ? jwtDecode(storedToken) : null;
 
-  // Function to update token
-  const updateToken = (token) => {
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setDecodedToken(decoded);
-        // localStorage.setItem("token", token);
-        console.log(decoded);
-        localStorage.setItem("decodedToken", JSON.stringify(decoded));
-      } catch (error) {
-        console.error("Invalid token:", error);
-        setDecodedToken(null);
-        localStorage.removeItem("token");
-      }
-    } else {
-      setDecodedToken(null);
-      localStorage.removeItem("token");
-      
+  const [decodedToken, setDecodedToken] = useState(initialDecoded);
+
+  const decodeToken = (token) => {
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
     }
   };
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      updateToken(storedToken);
+    if (!storedToken) return;
+
+    const decoded = decodeToken(storedToken);
+    if (decoded) {
+      setDecodedToken(decoded);
+    } else {
+      localStorage.removeItem("token");
     }
   }, []);
 
+  const setToken = (token) => {
+    const decoded = decodeToken(token);
+    if (!decoded) return;
+    localStorage.setItem("token", token);
+    setDecodedToken(decoded);
+  };
+
+  const logout = () => {
+    setDecodedToken(null);
+    localStorage.removeItem("token");
+  };
+
   return (
-    <TokenContext.Provider value={{ decodedToken, updateToken }}>
+    <TokenContext.Provider value={{ decodedToken, setToken, logout }}>
       {children}
     </TokenContext.Provider>
   );
 };
-
-

@@ -9,7 +9,7 @@ const Footer = () => {
       navigate("/", { replace: true });
       setTimeout(() => {
         document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      }, 100); 
+      }, 100);
     } else {
       document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     }
@@ -22,29 +22,42 @@ const Footer = () => {
           <div>
             <h2 className="text-2xl font-bold">Taskly</h2>
             <p className="text-sm text-gray-300 mt-2">
-              Stay organized, track progress, and achieve your goals efficiently.
+              Stay organized, track progress, and achieve your goals
+              efficiently.
             </p>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <button onClick={() => scrollToSection("features")} className="hover:text-gray-300">
+                <button
+                  onClick={() => scrollToSection("features")}
+                  className="hover:text-gray-300"
+                >
                   Features
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("pricing")} className="hover:text-gray-300">
+                <button
+                  onClick={() => scrollToSection("pricing")}
+                  className="hover:text-gray-300"
+                >
                   Pricing
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("about")} className="hover:text-gray-300">
+                <button
+                  onClick={() => scrollToSection("about")}
+                  className="hover:text-gray-300"
+                >
                   About
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("contact")} className="hover:text-gray-300">
+                <button
+                  onClick={() => scrollToSection("contact")}
+                  className="hover:text-gray-300"
+                >
                   Contact
                 </button>
               </li>
@@ -63,8 +76,12 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
           <p>© 2025 Taskly. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
-            <Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
-            <Link to="/terms-of-service" className="hover:text-white">Terms of Service</Link>
+            <Link to="/privacy-policy" className="hover:text-white">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-of-service" className="hover:text-white">
+              Terms of Service
+            </Link>
           </div>
         </div>
       </div>
@@ -73,5 +90,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
-

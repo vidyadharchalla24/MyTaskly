@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../utils/api";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -33,11 +34,13 @@ const Signup = () => {
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters.";
     } else if (!/[A-Z]/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one uppercase letter.";
+      newErrors.password =
+        "Password must contain at least one uppercase letter.";
     } else if (!/\d/.test(formData.password)) {
       newErrors.password = "Password must contain at least one number.";
     } else if (!/[!@#$%^&*]/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one special character (!@#$%^&*).";
+      newErrors.password =
+        "Password must contain at least one special character (!@#$%^&*).";
     }
 
     if (!formData.confirmPassword) {
@@ -65,7 +68,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      await axios.post("http://localhost:9091/api/v1/register", formData);
+      await axios.post(`${BASE_URL}/api/v1/register`, formData);
       toast.success("Signup successful! Please log in.");
       navigate("/login");
     } catch (error) {
@@ -149,7 +152,9 @@ const Signup = () => {
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-l mt-1">{errors.confirmPassword}</p>
+                <p className="text-red-500 text-l mt-1">
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
 
@@ -163,7 +168,7 @@ const Signup = () => {
           </form>
 
           <p className="mt-4 text-l text-gray-600 text-center">
-            Already have an account? {" "}
+            Already have an account?{" "}
             <Link to="/login" className="text-indigo-600 hover:underline">
               Log in
             </Link>

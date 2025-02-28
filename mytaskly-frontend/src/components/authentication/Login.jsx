@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { BASE_URL } from "../../utils/api";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import loginImage from "../../assets/feature.jpg";
+import { TokenContext } from "../../utils/TokenContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const { setToken } = useContext(TokenContext);
 
   const validate = () => {
     let newErrors = {};
@@ -38,25 +42,22 @@ const Login = () => {
       return;
     }
     setLoading(true);
+
     try {
-      const response = await axios.post(
-        "http://localhost:9091/api/v1/login",
-        formData
-      );
+      const response = await axios.post(`${BASE_URL}/api/v1/login`, formData);
       if (response.data?.token) {
-        localStorage.setItem("token", response.data.token);
-        navigate("/dashboard");
+        setToken(response.data.token);
         toast.success("Login successful!");
+        navigate("/dashboard");
       } else {
         toast.error("Invalid login credentials.");
       }
     } catch (error) {
-      toast.error(error.response?.data?.token || "Login failed. Try again.");
+      toast.error(error.response?.data?.message || "Login failed. Try again.");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="flex flex-col md:flex-row min-h-screen items-center justify-center px-4 bg-gray-100">
       <div className="hidden md:flex w-full md:w-1/2 items-center justify-center p-4">

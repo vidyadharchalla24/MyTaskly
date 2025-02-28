@@ -58,17 +58,17 @@ export const features = [
 
 export const testimonials = [
   {
-    name: "John Doe",
+    name: "Maruti Konduri",
     role: "Software Engineer",
     quote: "This platform has completely transformed the way we work. The team collaboration features are outstanding!",
   },
   {
-    name: "Jane Smith",
+    name: "Chinmayee Vellanki",
     role: "Project Manager",
     quote: "A fantastic tool for managing projects and staying on top of deadlines. Highly recommended!",
   },
   {
-    name: "Michael Lee",
+    name: "Abhishek Achugatla",
     role: "Product Designer",
     quote: "The intuitive UI and seamless integrations make this a must-have for any team.",
   },
