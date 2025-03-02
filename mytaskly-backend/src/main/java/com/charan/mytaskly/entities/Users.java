@@ -1,5 +1,6 @@
 package com.charan.mytaskly.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class Users {
     private String email;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
@@ -29,16 +31,16 @@ public class Users {
     @Column(nullable = false)
     private Role role;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Subscriptions> subscriptions;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Organizations> organizations;
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<ProjectAssignments> projectAssignments;
 
-    @OneToOne(mappedBy = "users",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToOne(mappedBy = "users",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private OneTimePassword oneTimePassword;
 
     public Users() {

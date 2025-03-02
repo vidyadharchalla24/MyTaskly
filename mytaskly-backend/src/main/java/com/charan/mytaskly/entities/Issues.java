@@ -43,10 +43,10 @@ public class Issues {
     @JsonBackReference
     private Sprints sprints;
 
-    @OneToMany(mappedBy = "issues",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "issues",cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Comments> comments;
 
-    @OneToMany(mappedBy = "issues",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "issues",cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Attachments> attachments;
 
     public Issues() {

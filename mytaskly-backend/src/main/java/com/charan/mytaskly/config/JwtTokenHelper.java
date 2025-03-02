@@ -77,7 +77,7 @@ public class JwtTokenHelper {
     }
 
     public String getUsernameFromToken(String token){
-        return getClaimsFromToken(token).get("username").toString();
+        return getClaimsFromToken(token).get("email").toString();
     }
 
     public Boolean validateToken(String token,UserDetails userDetails){

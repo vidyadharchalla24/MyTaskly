@@ -3,12 +3,14 @@ package com.charan.mytaskly.services;
 import com.charan.mytaskly.dto.PasswordDto;
 import com.charan.mytaskly.dto.UsersDto;
 import com.charan.mytaskly.emailconfigurations.EmailUtils;
-import com.charan.mytaskly.entities.OneTimePassword;
-import com.charan.mytaskly.entities.Role;
-import com.charan.mytaskly.entities.Users;
+import com.charan.mytaskly.entities.*;
+import com.charan.mytaskly.exception.*;
 import com.charan.mytaskly.repository.OneTimePasswordRepository;
+import com.charan.mytaskly.repository.SubscriptionPlanRepository;
+import com.charan.mytaskly.repository.SubscriptionsRepository;
 import com.charan.mytaskly.repository.UsersRepository;
 import jakarta.mail.MessagingException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,13 +18,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 @Service
 public class UsersServiceImpl implements UsersService{
+
+    private final SubscriptionsRepository subscriptionsRepository;
+
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     private final UsersRepository usersRepository;
 
@@ -34,7 +42,9 @@ public class UsersServiceImpl implements UsersService{
 
     private final EmailUtils emailUtils;
 
-    public UsersServiceImpl(UsersRepository usersRepository, ImageUploadCloudinary imageUploadCloudinary, PasswordEncoder passwordEncoder, OneTimePasswordRepository oneTimePasswordRepository, EmailUtils emailUtils) {
+    public UsersServiceImpl(SubscriptionsRepository subscriptionsRepository, SubscriptionPlanRepository subscriptionPlanRepository, UsersRepository usersRepository, ImageUploadCloudinary imageUploadCloudinary, PasswordEncoder passwordEncoder, OneTimePasswordRepository oneTimePasswordRepository, EmailUtils emailUtils) {
+        this.subscriptionsRepository = subscriptionsRepository;
+        this.subscriptionPlanRepository = subscriptionPlanRepository;
         this.usersRepository = usersRepository;
         this.imageUploadCloudinary = imageUploadCloudinary;
         this.passwordEncoder = passwordEncoder;
@@ -45,83 +55,105 @@ public class UsersServiceImpl implements UsersService{
 
     @Override
     public ResponseEntity<String> saveUser(UsersDto usersDto) {
-        Optional<Users> existingUser = usersRepository.findByEmail(usersDto.getEmail());
-        if(existingUser.isPresent()){
-            return ResponseEntity.badRequest().body("Email is already in use.");
+
+        if(usersRepository.findByEmail(usersDto.getEmail()).isPresent()){
+            throw new AlreadyExistsException("Email is already in use.");
         }
-        String hashPassword = passwordEncoder.encode(usersDto.getPassword());
+
+        SubscriptionPlan subscriptionPlan = subscriptionPlanRepository.findById("SUB_FREE").orElseThrow(
+                ()-> new ResourceNotFoundException("Subscription Plan not found!!")
+        );
+
+        Subscriptions subscriptions = new Subscriptions();
+        subscriptions.setSubscriptionsId(UUID.randomUUID().toString());
+        subscriptions.setPlan(subscriptionPlan);
+        subscriptions.setStartDate(LocalDate.now());
+        subscriptions.setStatus(SubscriptionStatus.ACTIVE);
+        subscriptions.setEndDate(LocalDate.now().plusDays(subscriptionPlan.getDurationInDays()));
+
         Users newUser = new Users();
         newUser.setUserId(UUID.randomUUID().toString());
         newUser.setEmail(usersDto.getEmail());
         newUser.setName(usersDto.getName());
         newUser.setRole(Role.OWNER);
-        newUser.setPassword(hashPassword);
+        newUser.setPassword(passwordEncoder.encode(usersDto.getPassword()));
         newUser.setImageUrl(usersDto.getImageUrl());
+        try{
+            Users savedUser = usersRepository.save(newUser);
+            subscriptions.setUser(savedUser);
+            subscriptionsRepository.save(subscriptions);
+            return new ResponseEntity<String>("User added Successfully", HttpStatus.OK);
+        } catch (DataAccessException e) {
+            throw new DatabaseOperationException("Failed to add User"+ e.getMessage());
+        }
 
-        usersRepository.save(newUser);
-        return new ResponseEntity<String>("User added Successfully", HttpStatus.OK);
     }
 
     @Override
     public String uploadProfileImage(String userId, MultipartFile file) throws IOException {
-        Optional<Users> existingUser = usersRepository.findById(userId);
-        if(existingUser.isPresent()){
-            Users users = existingUser.get();
+        try{
+            Users existingUser = usersRepository.findById(userId).orElseThrow(
+                    ()-> new ResourceNotFoundException("User Not Found!")
+            );
 
             // If user already has an existing profile image, delete it from Cloudinary
-            if (users.getImageUrl() != null) {
-                deleteImageFromCloudinary(users.getImageUrl());
+            if (existingUser.getImageUrl() != null) {
+                deleteImageFromCloudinary(existingUser.getImageUrl());
             }
 
             String imageUrl = imageUploadCloudinary.uploadImage(file);
-            users.setImageUrl(imageUrl);
-            usersRepository.save(users);
+            existingUser.setImageUrl(imageUrl);
+            usersRepository.save(existingUser);
+
             return imageUrl;
+        }catch (IOException e){
+            throw new FileUploadException("Failed to upload profile image.");
         }
-        return "User is not Found!";
     }
 
     @Override
     public String removeProfileImage(String userId) throws IOException {
-        Optional<Users> userOptional = usersRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            Users user = userOptional.get();
+        Users user = usersRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException("User not Found!")
+        );
 
-            if (user.getImageUrl() != null) {
-                // Delete the image from Cloudinary
-                deleteImageFromCloudinary(user.getImageUrl());
+        if (user.getImageUrl() == null) {
+            throw new ImageNotFoundException("No profile image found...");
 
-                // Set profile image URL to null in the database
-                user.setImageUrl(null);
-                usersRepository.save(user);
-
-                return "Profile image removed successfully!";
-            }
-            return "No profile image found to remove!";
         }
-        return "User not found!";
+        try{
+            deleteImageFromCloudinary(user.getImageUrl());
+
+            // Set profile image URL to null in the database
+            user.setImageUrl(null);
+            usersRepository.save(user);
+
+            return "Profile image removed successfully!";
+        } catch (IOException e) {
+            throw new FileDeleteException("Failed to remove profile image.");
+        }
     }
 
     @Override
     public String updateUserPassword(String userId, PasswordDto passwordDto) {
-        Optional<Users> existingUser = usersRepository.findById(userId);
-        if (existingUser.isPresent()) {
-            Users users = existingUser.get();
-            if(passwordEncoder.matches(passwordDto.getOldPassword(),users.getPassword())){
-                String newHashedPassword = passwordEncoder.encode(passwordDto.getNewPassword());
-                users.setPassword(newHashedPassword);
-                usersRepository.save(users);
-                return "User Password Changed Successfully!!";
-            }
-            return "Password didn't match!!";
+        Users users = usersRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException("User Not Found!")
+        );
+
+        if(!passwordEncoder.matches(passwordDto.getOldPassword(),users.getPassword())){
+            throw new InvalidPasswordException("Old Password does not match...");
         }
-        return "No User Found!!";
+
+        users.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+        usersRepository.save(users);
+
+        return "Password Updated Successfully!!";
     }
 
     @Override
     public String forgotPassword(String email) throws MessagingException {
         Users user = usersRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid email"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid email"));
 
         OneTimePassword oneTimePassword = oneTimePasswordRepository.getOtpByUserId(user.getUserId());
         if (oneTimePassword == null) {
@@ -139,32 +171,88 @@ public class UsersServiceImpl implements UsersService{
 
         String emailBody = getOtpEmailTemplate(otpValue, OTP_VALIDITY_MINUTES);
 
-        emailUtils.sendEmail(email, "Reset Your MyTaskly Password – OTP Inside!", emailBody);
-
-        return "OTP sent successfully";
+        try{
+            emailUtils.sendEmail(email, "Reset Your MyTaskly Password – OTP Inside!", emailBody);
+            return "OTP sent successfully";
+        } catch (MessagingException e) {
+            throw new EmailSendException("Failed to send OTP email.");
+        }
     }
 
     @Override
     public String verifyOtp(String email, String otp) {
-        Users user = usersRepository.findByEmail(email).orElseThrow(()->new RuntimeException("Invalid email address."));
+        Users user = usersRepository.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("Invalid email address."));
 
-        OneTimePassword otpOptional = oneTimePasswordRepository.getOtpByUserId(user.getUserId());
-        if (otpOptional == null) {
-            return "OTP not found.";
+        OneTimePassword storedOtp = oneTimePasswordRepository.getOtpByUserId(user.getUserId());
+        if (storedOtp == null) {
+            throw new OtpNotFoundException("OTP not found.");
         }
 
-        if (otpOptional.getOtpValue().equals(otp) && otpOptional.getExpirationTime().isAfter(LocalDateTime.now())) {
-            return "OTP has been successfully verified.";
+        if (!storedOtp.getOtpValue().equals(otp) && storedOtp.getExpirationTime().isAfter(LocalDateTime.now())) {
+            throw new InvalidOtpException("Incorrect OTP or time has expired.");
         }
-        return "Incorrect OTP or time has expired.";
+
+        return "OTP has been successfully verified.";
     }
 
     @Override
     public String setPassword(String email, String newPassword) {
-        Users user = usersRepository.findByEmail(email).orElseThrow(()->new RuntimeException("User not found."));
+        Users user = usersRepository.findByEmail(email).orElseThrow(
+                ()->new ResourceNotFoundException("User not found.")
+        );
+
         user.setPassword(passwordEncoder.encode(newPassword));
         usersRepository.save(user);
+
         return "Password has been changed successfully.";
+    }
+
+    @Override
+    public String updateUsername(String email, String username) {
+        Users users = usersRepository.findByEmail(email).orElseThrow(
+                ()-> new ResourceNotFoundException("User not Found!")
+        );
+
+        if(username == null || username.trim().isEmpty()){
+            throw new InvalidInputException("New username cannot be empty.");
+        }
+        users.setName(username);
+        try{
+            usersRepository.save(users);
+        } catch (DataAccessException e) {
+            throw new DatabaseOperationException("Failed to update username");
+        }
+        return "Username updated successfully!";
+    }
+
+    @Override
+    public Users getUserByUserId(String userId) {
+        return usersRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException("User not Found!!")
+        );
+    }
+
+    @Override
+    public String deleteUserByUserId(String userId) {
+        Users users = usersRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException("User not Found!!")
+        );
+        try{
+            usersRepository.delete(users);
+        }catch (DataAccessException e){
+            throw new DatabaseOperationException("Failed to delete user...");
+        }
+        return "User deleted Successfully!!!!";
+    }
+
+    @Override
+    public List<Users> getAllUsers() {
+        List<Users> usersList = usersRepository.findAll();
+
+        if(usersList.isEmpty()){
+            throw new ResourceNotFoundException("No Users Exists..");
+        }
+        return usersList;
     }
 
     /**

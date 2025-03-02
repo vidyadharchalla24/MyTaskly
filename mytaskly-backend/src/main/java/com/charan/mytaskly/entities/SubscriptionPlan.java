@@ -30,17 +30,17 @@ public class SubscriptionPlan {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Column(nullable = false)
     private int durationInDays;
 
-    @OneToMany(mappedBy = "plan",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "plan",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Subscriptions> subscriptions;
 
     public SubscriptionPlan() {
         super();
     }
 
-    public SubscriptionPlan(PlanType name, int maxOrganizations, int maxProjectsPerOrg, int maxTeamMembersPerProject, BigDecimal price, int durationInDays) {
+    public SubscriptionPlan(String subscriptionPlanId, PlanType name, int maxOrganizations, int maxProjectsPerOrg, int maxTeamMembersPerProject, BigDecimal price, int durationInDays) {
+        this.subscriptionPlanId = subscriptionPlanId;
         this.name = name;
         this.maxOrganizations = maxOrganizations;
         this.maxProjectsPerOrg = maxProjectsPerOrg;

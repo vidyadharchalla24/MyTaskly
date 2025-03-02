@@ -3,7 +3,7 @@ package com.charan.mytaskly.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "subscriptions")
@@ -13,11 +13,9 @@ public class Subscriptions {
     @Column(name = "subscriptions_id")
     private String subscriptionsId;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startDate;
+    private LocalDate startDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date endDate;
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -37,7 +35,7 @@ public class Subscriptions {
         super();
     }
 
-    public Subscriptions(String subscriptionsId, Date startDate, Date endDate, SubscriptionStatus status, Users user, SubscriptionPlan plan) {
+    public Subscriptions(String subscriptionsId, LocalDate startDate, LocalDate endDate, SubscriptionStatus status, Users user, SubscriptionPlan plan) {
         this.subscriptionsId = subscriptionsId;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -54,19 +52,19 @@ public class Subscriptions {
         this.subscriptionsId = subscriptionsId;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

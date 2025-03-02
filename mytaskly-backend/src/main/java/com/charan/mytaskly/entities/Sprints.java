@@ -3,7 +3,7 @@ package com.charan.mytaskly.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -17,11 +17,9 @@ public class Sprints {
     @Column(name = "sprint_name")
     private String sprintName;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startDate;
+    private LocalDate startDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date endDate;
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
     private SprintStatus sprintStatus;
@@ -31,14 +29,14 @@ public class Sprints {
     @JsonBackReference
     private Projects projects;
 
-    @OneToMany(mappedBy = "sprints", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "sprints", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Issues> issues;
 
     public Sprints() {
         super();
     }
 
-    public Sprints(String sprintId, String sprintName, Date startDate, Date endDate, SprintStatus sprintStatus) {
+    public Sprints(String sprintId, String sprintName, LocalDate startDate, LocalDate endDate, SprintStatus sprintStatus) {
         this.sprintId = sprintId;
         this.sprintName = sprintName;
         this.startDate = startDate;
@@ -62,19 +60,19 @@ public class Sprints {
         this.sprintName = sprintName;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

@@ -19,33 +19,18 @@ public class ForgotPasswordController {
     }
 
     @PostMapping("/send-otp")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        try {
-            String response = usersService.forgotPassword(email);
-            return ResponseEntity.ok(response);
-        } catch (MessagingException e) {
-            return ResponseEntity.status(500).body("Error sending OTP email.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) throws MessagingException {
+        String response = usersService.forgotPassword(email);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        String response = usersService.verifyOtp(email, otp);
-        if (response.equals("OTP has been successfully verified.")) {
-            return ResponseEntity.ok(response);
-        }
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.ok(usersService.verifyOtp(email, otp));
     }
 
     @PostMapping("/set-password")
     public ResponseEntity<String> setPassword(@RequestParam String email, @RequestParam String newPassword) {
-        try {
-            String response = usersService.setPassword(email, newPassword);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return ResponseEntity.ok(usersService.setPassword(email, newPassword));
     }
 }

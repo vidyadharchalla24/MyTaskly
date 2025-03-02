@@ -21,7 +21,7 @@ public class Organizations {
     @JsonBackReference
     private Users owner;
 
-    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Projects> projects;
 
     @ManyToOne
