@@ -24,7 +24,7 @@ public class Projects {
 
     @ManyToOne
     @JoinColumn(name = "organization_id",nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "organizations-projects")
     private Organizations organization;
 
     @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)

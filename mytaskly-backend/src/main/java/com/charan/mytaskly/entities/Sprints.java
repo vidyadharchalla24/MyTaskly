@@ -26,7 +26,7 @@ public class Sprints {
 
     @ManyToOne
     @JoinColumn(name = "project_id",nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "projects-sprints")
     private Projects projects;
 
     @OneToMany(mappedBy = "sprints", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)

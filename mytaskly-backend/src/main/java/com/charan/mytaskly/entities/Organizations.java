@@ -24,20 +24,15 @@ public class Organizations {
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Projects> projects;
 
-    @ManyToOne
-    @JoinColumn(name = "subscription_id", nullable = false)
-    private Subscriptions subscriptions;
-
     public Organizations() {
         super();
     }
 
-    public Organizations(String organizationsId, String organizationName, Users owner, List<Projects> projects, Subscriptions subscriptions) {
+    public Organizations(String organizationsId, String organizationName, Users owner, List<Projects> projects) {
         this.organizationsId = organizationsId;
         this.organizationName = organizationName;
         this.owner = owner;
         this.projects = projects;
-        this.subscriptions = subscriptions;
     }
 
     public String getOrganizationsId() {
@@ -70,13 +65,5 @@ public class Organizations {
 
     public void setProjects(List<Projects> projects) {
         this.projects = projects;
-    }
-
-    public Subscriptions getSubscriptions() {
-        return subscriptions;
-    }
-
-    public void setSubscriptions(Subscriptions subscriptions) {
-        this.subscriptions = subscriptions;
     }
 }

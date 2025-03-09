@@ -56,7 +56,6 @@ public class OrganizationsServiceImpl implements OrganizationsService{
         newOrganization.setOrganizationsId(UUID.randomUUID().toString());
         newOrganization.setOrganizationName(organizationName);
         newOrganization.setOwner(user);
-        newOrganization.setSubscriptions(subscription);
         organizationsRepository.save(newOrganization);
 
         return "Organization added successfully!";

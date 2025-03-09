@@ -65,8 +65,8 @@ public class ProjectsServiceImpl implements ProjectsService{
         projectAssignments.setUsers(owner);
         projectAssignments.setProjects(saveProject);
         projectAssignments.setRole(Role.OWNER);
-        projectAssignmentsRepository.save(projectAssignments);
-
+        ProjectAssignments savedProjectAssignments = projectAssignmentsRepository.save(projectAssignments);
+        saveProject.setProjectAssignments(List.of(savedProjectAssignments));
         return saveProject;
     }
 

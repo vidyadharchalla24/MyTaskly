@@ -17,7 +17,7 @@ public class Attachments {
 
     @ManyToOne
     @JoinColumn(name = "issue_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("attachment-issues")
     private Issues issues;
 
     @ManyToOne
