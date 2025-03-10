@@ -17,4 +17,4 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
-export { BASE_URL };
+

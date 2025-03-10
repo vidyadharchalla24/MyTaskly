@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "../../utils/api";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from "../../utils/api";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -38,8 +37,8 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-       `${BASE_URL}/api/v1/forgot-password/send-otp`,
+      const response = await api.post(
+       "/api/v1/forgot-password/send-otp",
         null,
         {
           params: { email },

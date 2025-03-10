@@ -10,6 +10,8 @@ import VerifyOtp from "./components/forgotPassword/verifyOtp";
 import ResetPassword from "./components/forgotPassword/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
+import Organization from "./components/Organization";
+
 
 export default function App() {
   return (
@@ -28,6 +30,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/organization" element={<Organization/>}/>
           </Route>
         </Route>
       </Routes>

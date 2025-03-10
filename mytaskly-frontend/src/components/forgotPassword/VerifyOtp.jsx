@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { BASE_URL } from "../../utils/api";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -50,7 +48,7 @@ const VerifyOtp = () => {
     }
 
     try {
-      await axios.post(
+      await api.post(
         `${BASE_URL}/api/v1/forgot-password/verify-otp`,
         null,
         { params: { email, otp } }
@@ -68,7 +66,7 @@ const VerifyOtp = () => {
     setErrors({});
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "http://localhost:9091/api/v1/forgot-password/send-otp",
         null,
         {

@@ -1,11 +1,11 @@
 import { useState, useContext } from "react";
-import { BASE_URL } from "../../utils/api";
+
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import loginImage from "../../assets/feature.jpg";
 import { TokenContext } from "../../utils/TokenContext";
+import api from "../../utils/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -37,14 +37,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) {
+    if (!validate()) {handleChange
       toast.error("Please fill all required fields.");
       return;
     }
     setLoading(true);
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/v1/login`, formData);
+      const response = await api.post("/api/v1/login", formData);
+    
       if (response.data?.token) {
         setToken(response.data.token);
         toast.success("Login successful!");
