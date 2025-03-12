@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BASE_URL } from "../../utils/api";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import signupImage from "../../assets/home2.png";
+import api from "../../utils/api";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -68,7 +67,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      await axios.post(`${BASE_URL}/api/v1/register`, formData);
+      await api.post("/api/v1/register", formData);
       toast.success("Signup successful! Please log in.");
       navigate("/login");
     } catch (error) {

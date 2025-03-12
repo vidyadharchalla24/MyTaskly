@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { BASE_URL } from "../../utils/api";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -62,8 +60,8 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      await axios.post(
-        `${BASE_URL}/api/v1/forgot-password/set-password`,
+      await api.post(
+        'api/api/v1/forgot-password/set-password',
         null,
         { params: { email, newPassword } }
       );
