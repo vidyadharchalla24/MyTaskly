@@ -17,11 +17,12 @@ public class Attachments {
 
     @ManyToOne
     @JoinColumn(name = "issue_id", nullable = false)
-    @JsonBackReference("attachment-issues")
+    @JsonBackReference(value = "attachment-issues")
     private Issues issues;
 
     @ManyToOne
-    @JoinColumn(name = "user_id",nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference(value = "users-attachments")
     private Users users;
 
     public Attachments() {

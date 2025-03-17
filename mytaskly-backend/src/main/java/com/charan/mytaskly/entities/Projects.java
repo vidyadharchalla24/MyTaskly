@@ -1,6 +1,7 @@
 package com.charan.mytaskly.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -23,14 +24,16 @@ public class Projects {
     private ProjectStatus projectStatus;
 
     @ManyToOne
-    @JoinColumn(name = "organization_id",nullable = false)
+    @JoinColumn(name = "organization_id", nullable = false)
     @JsonBackReference(value = "organizations-projects")
     private Organizations organization;
 
-    @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "projects-sprints")
     private List<Sprints> sprints;
 
-    @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "projects", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "project-assignments")
     private List<ProjectAssignments> projectAssignments;
 
     public Projects() {

@@ -1,5 +1,6 @@
 package com.charan.mytaskly.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -19,6 +20,7 @@ public class OneTimePassword {
 
     @OneToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference(value = "user-otp")
     private Users users;
 
     public OneTimePassword() {

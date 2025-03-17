@@ -27,7 +27,7 @@ public class SprintsController {
         return ResponseEntity.ok(sprintsService.getAllSprints());
     }
 
-    @PostMapping("/singleSprint/{sprintId}")
+    @GetMapping("/singleSprint/{sprintId}")
     public ResponseEntity<Sprints> getSprintBySprintId(@PathVariable("sprintId") String sprintId){
         return ResponseEntity.ok(sprintsService.getSprintBySprintId(sprintId));
     }
@@ -47,7 +47,7 @@ public class SprintsController {
         return ResponseEntity.ok(sprintsService.deleteSprintBySprintId(sprintId));
     }
 
-    @PutMapping("/{sprintId}/status")
+    @PatchMapping("/{sprintId}/status")
     public ResponseEntity<String> updateSprintStatus(@PathVariable("sprintId") String sprintId,@RequestParam String sprintStatus){
         return ResponseEntity.ok(sprintsService.updateSprintStatus(sprintId,sprintStatus));
     }

@@ -1,5 +1,6 @@
 package com.charan.mytaskly.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ public class SubscriptionPlan {
     private String subscriptionPlanId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private PlanType name;
 
     @Column(nullable = false)
@@ -32,7 +33,8 @@ public class SubscriptionPlan {
 
     private int durationInDays;
 
-    @OneToMany(mappedBy = "plan",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "subscription-plan")
     private List<Subscriptions> subscriptions;
 
     public SubscriptionPlan() {

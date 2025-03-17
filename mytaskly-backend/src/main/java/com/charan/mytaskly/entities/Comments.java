@@ -15,12 +15,13 @@ public class Comments {
     private String Content;
 
     @ManyToOne
-    @JoinColumn(name = "issue_id",nullable = false)
+    @JoinColumn(name = "issue_id", nullable = false)
     @JsonBackReference
     private Issues issues;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference(value = "users-comments")
     private Users users;
 
     public Comments() {

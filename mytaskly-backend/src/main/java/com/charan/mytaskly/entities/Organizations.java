@@ -1,6 +1,7 @@
 package com.charan.mytaskly.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class Organizations {
     @Column(name = "organizations_id")
     private String organizationsId;
 
-    @Column(name = "organization_name",unique = true,nullable = false)
+    @Column(name = "organization_name", unique = true, nullable = false)
     private String organizationName;
 
     @ManyToOne
@@ -21,7 +22,8 @@ public class Organizations {
     @JsonBackReference
     private Users owner;
 
-    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "organizations-projects")
     private List<Projects> projects;
 
     public Organizations() {

@@ -1,6 +1,8 @@
 package com.charan.mytaskly.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -25,11 +27,13 @@ public class Sprints {
     private SprintStatus sprintStatus;
 
     @ManyToOne
-    @JoinColumn(name = "project_id",nullable = false)
+    @JoinColumn(name = "project_id", nullable = false)
     @JsonBackReference(value = "projects-sprints")
+    @JsonIgnore
     private Projects projects;
 
-    @OneToMany(mappedBy = "sprints", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sprints", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "issues-sprints")
     private List<Issues> issues;
 
     public Sprints() {

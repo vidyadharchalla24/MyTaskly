@@ -1,6 +1,5 @@
 package com.charan.mytaskly.dto;
 
-import com.charan.mytaskly.entities.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

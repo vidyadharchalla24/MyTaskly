@@ -23,12 +23,12 @@ public class Subscriptions {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference("subscription-owner")
+    @JsonBackReference(value = "subscription-owner")
     private Users user;
 
     @ManyToOne
     @JoinColumn(name = "plan_id")
-    @JsonBackReference("subscription-plan")
+    @JsonBackReference(value = "subscription-plan")
     private SubscriptionPlan plan;
 
     public Subscriptions() {
