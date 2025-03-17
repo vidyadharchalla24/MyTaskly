@@ -108,4 +108,13 @@ public class ProjectsServiceImpl implements ProjectsService{
         return "Project deleted successfully!!";
     }
 
+    @Override
+    public List<Projects> getProjectByOrganizationName(String organizationName) {
+        List<Projects> projectsList = projectsRepository.getProjectByOrganizationName(organizationName);
+        if (projectsList.isEmpty()) {
+            throw new ResourceNotFoundException("No Projects Available..");
+        }
+        return projectsList;
+    }
+
 }
