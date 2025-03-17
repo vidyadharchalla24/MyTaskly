@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import api from "../../utils/api";
 
 const CreateOrganization = ({ userId, onClose, onSuccess }) => {
-  const [organizationName, setOrganizationName] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
+   const location = useLocation();
+  const { organizationName } = location.state;
 
   const handleSubmit = async () => {
     if (!organizationName.trim()) {

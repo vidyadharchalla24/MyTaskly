@@ -1,35 +1,57 @@
 import { useState } from "react";
 import api from "../../utils/api";
+import { useLocation } from "react-router-dom";
 
-const CreateProject = ({ organizationName, onClose, onSuccess }) => {
+const CreateProject = ({ onClose, onSuccess }) => {
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
-    const [projectStatus, setProjectStatus] = useState(" ");
+    const [projectStatus, setProjectStatus] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    // Extract organization name from URL query parameters
+      const location = useLocation();
+      const { organizationName } = location.state;
+  
+    console.log("Extracted Organization Name:", organizationName); // Debugging log
 
     const handleSubmit = async () => {
-        if (!projectName.trim() || !projectDescription.trim()) {
-            alert("Please enter all project details!");
+        setSuccessMessage("");
+        setErrorMessage("");
+
+        if (!organizationName) {
+            setErrorMessage("Organization name is missing in the URL!");
+            return;
+        }
+
+        if (!projectName || !projectDescription || !projectStatus) {
+            setErrorMessage("All fields are required.");
             return;
         }
 
         try {
-            const response = await api.post(`/api/v1/projects/${organizationName}`, {
-                projectName,
-                projectDescription,
-                projectStatus,
-            });
+            const token = localStorage.getItem("token");
 
-            if (response.status === 200 || response.status === 201) {
-                alert("Project Created Successfully!");
-                setProjectName("");
-                setProjectDescription("");
-                setProjectStatus("PLANNED");
+            const response = await api.post(
+                `/api/v1/projects/${organizationName}`,
+                { projectName, projectDescription, projectStatus },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json", 
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            setSuccessMessage("Project created successfully!");
+            setTimeout(() => {
                 onSuccess();
                 onClose();
-            }
+            }, 1500);
         } catch (error) {
-            console.error("Error creating project:", error);
-            alert("Failed to create project. Please try again.");
+            console.error("API Error:", error.response?.data); // Debugging log
+            setErrorMessage(error.response?.data?.message || "Error creating project.");
         }
     };
 
@@ -42,41 +64,48 @@ const CreateProject = ({ organizationName, onClose, onSuccess }) => {
                     <label>Please provide project details here</label>
                 </div>
 
+                {/* Show error if organization name is missing */}
+                {!organizationName && (
+                    <div className="mt-4 text-red-600 font-semibold text-center">
+                        Organization name is missing in the URL.
+                    </div>
+                )}
+
                 <div className="flex flex-col items-center mt-6 gap-3">
-                    {/* Project Name */}
-                    <div className="flex flex-col w-96">
-                        <label className="text-left font-semibold">Project Name</label>
-                        <input
-                            type="text"
-                            placeholder="Enter project name"
-                            value={projectName}
-                            onChange={(e) => setProjectName(e.target.value)}
-                            className="mt-2 p-3 border rounded-md"
-                        />
-                    </div>
+                    {[
+                        { label: "Project Name", type: "text", value: projectName, setter: setProjectName },
+                        { label: "Project Description", type: "textarea", value: projectDescription, setter: setProjectDescription },
+                    ].map(({ label, type, value, setter }, index) => (
+                        <div key={index} className="flex flex-col w-96">
+                            <label className="text-left font-semibold">{label}</label>
+                            {type === "text" ? (
+                                <input
+                                    type="text"
+                                    placeholder={`Enter ${label.toLowerCase()}`}
+                                    value={value}
+                                    onChange={(e) => setter(e.target.value)}
+                                    className="mt-2 p-3 border border-gray-300 rounded-md"
+                                />
+                            ) : (
+                                <textarea
+                                    placeholder={`Enter ${label.toLowerCase()}`}
+                                    value={value}
+                                    onChange={(e) => setter(e.target.value)}
+                                    className="mt-2 p-3 border border-gray-300 rounded-md resize-none"
+                                    rows="4"
+                                />
+                            )}
+                        </div>
+                    ))}
 
-                    {/* Project Description */}
-                    <div className="flex flex-col w-96">
-                        <label className="text-left font-semibold">Project Description</label>
-                        <textarea
-                            placeholder="Enter project description"
-                            value={projectDescription}
-                            onChange={(e) => setProjectDescription(e.target.value)}
-                            className="mt-2 p-3 border rounded-md resize-none"
-                            rows="4"
-                        />
-                    </div>
-
-                    {/* Project Status Dropdown */}
                     <div className="flex flex-col w-96">
                         <label className="text-left font-semibold">Project Status</label>
                         <select
                             value={projectStatus}
                             onChange={(e) => setProjectStatus(e.target.value)}
                             className="mt-2 p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 outline-none w-full"
-                            placeholder="select your status"
                         >
-                            <option value="">select  status</option>
+                            <option value="">Select Status</option>
                             <option value="PLANNED">Planned</option>
                             <option value="IN_PROGRESS">In Progress</option>
                             <option value="COMPLETED">Completed</option>
@@ -85,12 +114,26 @@ const CreateProject = ({ organizationName, onClose, onSuccess }) => {
                     </div>
                 </div>
 
-                {/* Action Buttons */}
+                {errorMessage && (
+                    <div className="mt-4 text-red-600 font-semibold text-center">
+                        {errorMessage}
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div className="mt-4 text-green-600 font-semibold text-center">
+                        {successMessage}
+                    </div>
+                )}
+
                 <div className="flex justify-end mt-7 space-x-2">
                     <button onClick={onClose} className="bg-gray-300 px-4 py-2 rounded-lg">
                         Cancel
                     </button>
-                    <button className="bg-[#EFB036] text-white px-4 py-2 rounded-lg" onClick={handleSubmit}>
+                    <button
+                        className="bg-[#EFB036] text-white px-4 py-2 rounded-lg"
+                        onClick={handleSubmit}
+                    >
                         Submit
                     </button>
                 </div>

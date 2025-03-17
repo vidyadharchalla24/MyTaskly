@@ -15,6 +15,7 @@ import Organization from "./components/Organization";
 
 export default function App() {
   return (
+    
     <BrowserRouter>
       <ToastContainer position="top-right" autoClose={1000} />
       <Routes>

@@ -225,6 +225,7 @@ const LandingPage = () => {
                 required
                 className="w-full p-3 text-black rounded border border-gray-600 focus:ring-2 focus:ring-indigo-400"
               />
+              
               <input
                 type="email"
                 name="email"

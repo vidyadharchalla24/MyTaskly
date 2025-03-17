@@ -41,5 +41,8 @@ public class ProjectsController {
     public ResponseEntity<String> deleteProjectByProjectId(@PathVariable("projectId") String projectId){
         return ResponseEntity.ok(projectsService.deleteProjectByProjectId(projectId));
     }
-
+    @GetMapping("/{organizationName}/organizationName")
+    public ResponseEntity<List<Projects>> getProjectByOrganizationName(@PathVariable("organizationName") String organizationName){
+        return ResponseEntity.ok(projectsService.getProjectByOrganizationName(organizationName));
+    }
 }

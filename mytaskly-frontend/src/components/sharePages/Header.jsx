@@ -16,6 +16,8 @@ const Header = () => {
   const [showOrgModal, setShowOrgModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const dropdownRef = useRef(null);
+  
+
 
   const userId = decodedToken?.user_id;
 
@@ -146,7 +148,7 @@ const Header = () => {
       )}
 
       {showProjectModal && (
-        <CreateProject
+        <CreateProject  
           onClose={() => setShowProjectModal(false)}
           onSuccess={() => {
             setShowProjectModal(false);

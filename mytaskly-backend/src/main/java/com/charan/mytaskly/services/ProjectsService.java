@@ -15,4 +15,5 @@ public interface ProjectsService {
     Projects updateProjectByProjectId(String projectId, Projects projects);
 
     String deleteProjectByProjectId(String projectId);
+    List<Projects> getProjectByOrganizationName(String organizationName);
 }
