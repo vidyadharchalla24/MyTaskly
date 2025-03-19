@@ -1,25 +1,23 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState, useRef, useEffect } from "react";
-import { TokenContext } from "../../utils/TokenContext";
 import HomeImage from "../../assets/home2.png";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { User } from "lucide-react";
 import CreateOrganization from "../Models/CreateOrganization";
 import CreateProject from "../Models/CreateProject";
+import { UserContext } from "../../context/UserContext";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, decodedToken } = useContext(TokenContext);
+  const { logout, userDetails } = useContext(UserContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showOrgModal, setShowOrgModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const dropdownRef = useRef(null);
-  
 
-
-  const userId = decodedToken?.user_id;
+  const userId = userDetails?.user_id;
 
 
   useEffect(() => {
@@ -34,6 +32,20 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showDropdown]);
 
+  const handleNavigation = (section) => {
+    if (location.pathname !== "/") {
+      navigate("/", { replace: true });
+      setTimeout(() => {
+        document
+          .getElementById(section)
+          ?.scrollIntoView({ behavior: "smooth" });
+      }, 500);
+    } else {
+      document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
+    }
+    setMenuOpen(false);
+  };
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -43,11 +55,11 @@ const Header = () => {
   return (
     <header className="fixed top-0 w-full bg-[#23486A] shadow-md z-50 p-2">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/">
+        <Link to={userDetails?'/dashboard':'/'}>
           <img src={HomeImage} alt="Taskly Logo" className="h-10 w-auto" />
         </Link>
 
-        {!decodedToken && (
+        {!userDetails && (
           <>
             <button
               className="md:hidden text-white text-2xl"
@@ -58,7 +70,7 @@ const Header = () => {
             <nav className="md:flex hidden text-white items-center text-base font-[Poppins]">
               {["home", "about", "features", "pricing", "contact", "testimonials"].map(
                 (item) => (
-                  <button key={item} className="mr-5 text-1xl hover:text-[#EFB036]">
+                  <button key={item} onClick={()=>handleNavigation(`${item}`)} className="mr-5 text-1xl hover:text-[#EFB036]">
                     {item.charAt(0).toUpperCase() + item.slice(1)}
                   </button>
                 )
@@ -67,7 +79,7 @@ const Header = () => {
           </>
         )}
 
-        {decodedToken ? (
+        {userDetails ? (
           <div className="relative flex items-center space-y-3 sm:flex-row sm:space-y-0 sm:space-x-5">
             <Link
               className="text-white text-1xl bg-[#EFB036] p-1 rounded-lg"
@@ -140,20 +152,12 @@ const Header = () => {
         <CreateOrganization
           userId={userId}
           onClose={() => setShowOrgModal(false)}
-          onSuccess={() => {
-            setShowOrgModal(false);
-            navigate("/dashboard");
-          }}
         />
       )}
 
       {showProjectModal && (
         <CreateProject  
           onClose={() => setShowProjectModal(false)}
-          onSuccess={() => {
-            setShowProjectModal(false);
-            navigate("/organization");
-          }}
         />
       )}
 

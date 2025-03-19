@@ -48,7 +48,10 @@ public class OrganizationsServiceImpl implements OrganizationsService{
 
         // Validate subscription limits
         if (organizationCount >= maxAllowedOrganizations) {
-            throw new SubscriptionExpiryException("Organization limit exceeded for your plan: " + subscription.getPlan().getName());
+            if(subscription.getPlan().getName().equals(PlanType.ADVANCED)){
+                throw new SubscriptionExpiryException("Limit has reached for "+subscription.getPlan().getName()+" Plan... ");
+            }
+            throw new SubscriptionExpiryException("Limit has reached for "+subscription.getPlan().getName()+".. Please upgrade your plan... ");
         }
 
         // Create and save new organization
@@ -109,6 +112,12 @@ public class OrganizationsServiceImpl implements OrganizationsService{
         }
 
         return projectsList;
+    }
+
+    @Override
+    public List<Organizations> getOrganizationByUserId(String userId) {
+        List<Organizations> organizationsList = organizationsRepository.getOrganizationByUserId(userId);
+        return List.of();
     }
 
 }

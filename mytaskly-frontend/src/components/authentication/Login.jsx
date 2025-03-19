@@ -1,19 +1,17 @@
-import { useState, useContext } from "react";
-
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import loginImage from "../../assets/feature.jpg";
-import { TokenContext } from "../../utils/TokenContext";
 import api from "../../utils/api";
+import { UserContext } from "../../context/UserContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
-  const { setToken } = useContext(TokenContext);
+  const {login} = useContext(UserContext);
 
   const validate = () => {
     let newErrors = {};
@@ -47,7 +45,7 @@ const Login = () => {
       const response = await api.post("/api/v1/login", formData);
     
       if (response.data?.token) {
-        setToken(response.data.token);
+        login(response.data.token);
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {

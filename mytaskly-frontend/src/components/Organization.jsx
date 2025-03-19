@@ -1,20 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import api from "../utils/api";
 import { useLocation } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { OrganizationContext } from "../context/OrganizationContext";
+import { UserContext } from "../context/UserContext";
 
 const Organization = () => {
   const [data, setData] = useState([]);
   const [successMessage, setSuccessMessage] = useState(""); 
   const [showModal, setShowModal] = useState(false);
   const [deleteProjectId, setDeleteProjectId] = useState(null);
+  const {setOrganizationName} = useContext(OrganizationContext);
+  const {isProjectUpdated,setIsProjectUpdated} = useContext(UserContext);
 
   const location = useLocation();
-  const { organizationName } = location.state;
+  let organizationName  = "";
 
   useEffect(() => {
+    organizationName = location.state.organizationName;
+    setOrganizationName(organizationName);
     fetchProjects();
-  }, [organizationName]);
+    setIsProjectUpdated(false);
+  }, [organizationName,isProjectUpdated]);
 
   const fetchProjects = () => {
     api
@@ -83,16 +90,6 @@ const Organization = () => {
                 <strong className="font-bold">Project Description:</strong>
                 <p className="mt-2">{project.projectDescription}</p>
                 <p className="mt-2 font-bold">Status: {project.projectStatus}</p>
-
-                {project.projectAssignments && project.projectAssignments.length > 0 && (
-                  <ul className="mt-3">
-                    {project.projectAssignments.map((assignment) => (
-                      <li key={assignment.projectAssignmentsId} className="mt-1">
-                        <strong>Role:</strong> {assignment.role}
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
 
               {/* Edit & Delete Buttons */}

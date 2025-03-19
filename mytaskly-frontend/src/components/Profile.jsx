@@ -1,12 +1,14 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { FaUserCircle } from "react-icons/fa";
-import { TokenContext } from "../utils/TokenContext";
 import { toast } from "react-toastify";
 import { MdEdit, MdDelete } from "react-icons/md";
 import api from "../utils/api";
+import { UserContext } from "../context/UserContext";
+
+
 const Profile = () => {
-  const { decodedToken } = useContext(TokenContext);
-  const userId = decodedToken?.user_id;
+  const { userDetails } = useContext(UserContext);
+  const userId = userDetails?.user_id;
 
   const [user, setUser] = useState({ name: "", email: "", imageUrl:"" });
   const [newName, setNewName] = useState("");
@@ -165,12 +167,8 @@ const Profile = () => {
   return (
     <div className="min-h-screen  flex items-center justify-center font-[Poppins]">
       <div className="w-full max-w-xl mx-auto mt-10 mb-4 p-8 bg-white shadow-lg rounded-lg border">
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-          Profile 
-        </h2>
-
         {/* Profile Picture */}
-        <div className="flex flex-col items-center mb-6 relative">
+        <div className="flex justify-center items-center mb-6 relative">
           <div className="relative">
             <input
               type="file"
@@ -187,7 +185,7 @@ const Profile = () => {
                 <img
                   src={user.imageUrl}
                   alt="Profile"
-                  className="w-24 h-24 rounded-full border-2 border-gray-300 object-cover"
+                  className="w-40 h-40 rounded-full border-2 border-gray-300 object-cover"
                 />
               ) : (
                 <FaUserCircle className="w-40 h-40 text-gray-400" />
@@ -203,40 +201,30 @@ const Profile = () => {
           {showOptions && (
             <div className="">
               <div className="">
-                <p className="text-lg flex justify-center font-semibold mb-4">
-                  Update Profile Picture
-                </p>
                 <div className="flex flex-row justify-center gap-5">
                   <button
                     onClick={() => {
                       fileInputRef.current.click();
                       setShowOptions(false);
                     }}
-                    className="block w-40 bg-blue-500 text-white mt-2 px-2 py-3 rounded-lg hover:bg-blue-600 mb-2"
+                    className="block bg-blue-500 text-white mt-2 px-2 py-3 rounded-lg hover:bg-blue-600 mb-2"
                   >
-                    <div className="flex flex-col items-center">
-                      <MdEdit size={24} />
-                     
-                    </div>
-
+                    <MdEdit size={24} />
                   </button>
                   <button
                     onClick={() => {
                       handleRemoveProfilePicture();
                       setShowOptions(false);
                     }}
-                    className="block w-40 bg-red-500 text-white mt-2 px-2 py-3 rounded-lg hover:bg-red-600 mb-2"
+                    className="block bg-red-500 text-white mt-2 px-2 py-3 rounded-lg hover:bg-red-600 mb-2"
                   >
-                    <div className="flex flex-col items-center">
-                      <MdDelete size={24} />
-                     
-                    </div>
+                    <MdDelete size={24} />
                   </button>
                 </div>
                 <div className="flex justify-center">
                   <button
                     onClick={() => setShowOptions(false)}
-                    className="block w-40 py-3 px-3 mt-2 mb-5 text-white bg-green-400 rounded-lg"
+                    className="block py-3 px-3 mt-2 mb-5 text-white bg-green-400 rounded-lg"
                   >
                     Cancel
                   </button>
@@ -248,44 +236,44 @@ const Profile = () => {
         </div>
 
         {/* Name Input */}
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col">
           {/* Name Input */}
-          <div className="lg:w-1/2">
+          <div className="lg:w-1/2 p-2">
             <label className="block text-gray-700 font-medium mb-1">Name</label>
             <input
               type="text"
               name="newName"
               value={newName}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full lg:w-96 p-3 border border-gray-300 rounded-lg"
             />
             {errors.name && <p className="text-red-500 text-l mt-1">{errors.name}</p>}
           </div>
 
           {/* Email Input (Disabled) */}
-          <div className="lg:w-1/2">
+          <div className="lg:w-1/2 p-2">
             <label className="block text-gray-700 font-medium mb-1">Email</label>
             <input
               type="email"
               value={user.email || ""}
               disabled
-              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100"
+              className="w-full lg:w-96 p-3 border border-gray-300 rounded-lg bg-gray-100"
             />
           </div>
         </div>
 
         {/* Update Profile Button */}
-        <div className="flex flex-col justify-center gap-10 sm:flex-row mt-5">
+        <div className="flex flex-col md:flex-row justify-around items-center">
           <button
             onClick={handleProfileUpdate}
-            className="w-40  bg-blue-600 text-white px-2 py-2 rounded-lg mt-4"
+            className="bg-blue-600 text-white px-2 py-2 rounded-lg mt-4"
           >
             Update Profile
           </button>
 
           <button
             onClick={() => setShowPasswordFields(!showPasswordFields)}
-            className="w-40  bg-gray-600 text-white px-2 py-2 rounded-lg mt-4"
+            className="bg-gray-600 text-white px-2 py-2 rounded-lg mt-4"
           >
             {showPasswordFields ? "Cancel" : "Change Password"}
           </button>
@@ -314,7 +302,7 @@ const Profile = () => {
             <div className="flex justify-center">
               <button
                 onClick={handlePasswordChange}
-                className="w-40  items-center mt-5 bg-green-500 text-white px-3 py-2 rounded-lg"
+                className="items-center mt-5 bg-green-500 text-white px-3 py-2 rounded-lg"
               >
                 Save New Password
               </button>

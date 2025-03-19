@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Layout from "./components/sharePages/Layout";
 import LandingPage from "./components/LandingPage";
 import Signup from "./components/authentication/SignUp";
@@ -9,15 +9,23 @@ import ForgotPassword from "./components/forgotPassword/ForgotPassword";
 import VerifyOtp from "./components/forgotPassword/verifyOtp";
 import ResetPassword from "./components/forgotPassword/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { ToastContainer } from "react-toastify";
 import Organization from "./components/Organization";
+import { useEffect } from "react";
+import { setAxiosInterceptors } from "./utils/api";
 
 
 export default function App() {
+
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    setAxiosInterceptors(()=> navigate('/login'));
+  },[navigate]);
+
   return (
     
-    <BrowserRouter>
-      <ToastContainer position="top-right" autoClose={1000} />
+    <>
+      
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<LandingPage />} />
@@ -35,6 +43,6 @@ export default function App() {
           </Route>
         </Route>
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }

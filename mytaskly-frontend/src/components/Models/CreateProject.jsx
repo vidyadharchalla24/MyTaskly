@@ -1,19 +1,16 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import api from "../../utils/api";
-import { useLocation } from "react-router-dom";
+import { OrganizationContext } from "../../context/OrganizationContext";
+import { UserContext } from "../../context/UserContext";
 
-const CreateProject = ({ onClose, onSuccess }) => {
+const CreateProject = ({ onClose }) => {
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
     const [projectStatus, setProjectStatus] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-
-    // Extract organization name from URL query parameters
-      const location = useLocation();
-      const { organizationName } = location.state;
-  
-    console.log("Extracted Organization Name:", organizationName); // Debugging log
+    const {organizationName} = useContext(OrganizationContext);
+    const {setIsProjectUpdated} = useContext(UserContext);
 
     const handleSubmit = async () => {
         setSuccessMessage("");
@@ -30,23 +27,13 @@ const CreateProject = ({ onClose, onSuccess }) => {
         }
 
         try {
-            const token = localStorage.getItem("token");
-
             const response = await api.post(
                 `/api/v1/projects/${organizationName}`,
-                { projectName, projectDescription, projectStatus },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json", 
-                    },
-                    withCredentials: true,
-                }
+                { projectName, projectDescription, projectStatus }
             );
-
+            setIsProjectUpdated(true);
             setSuccessMessage("Project created successfully!");
             setTimeout(() => {
-                onSuccess();
                 onClose();
             }, 1500);
         } catch (error) {

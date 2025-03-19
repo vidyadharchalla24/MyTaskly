@@ -33,6 +33,11 @@ public class OrganizationsController {
         return ResponseEntity.ok(organizationsService.getOrganizationByOrganizationsId(organizationsId));
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Organizations>> getOrganizationByUserId(@PathVariable String userId){
+        return ResponseEntity.ok(organizationsService.getOrganizationByUserId(userId));
+    }
+
     @PutMapping("/{organizationsId}")
     public ResponseEntity<String> updateOrganizationName(@RequestParam String organizationName){
         return ResponseEntity.ok(organizationsService.updateOrganizationName(organizationName));

@@ -1,11 +1,10 @@
 import { useContext } from "react";
-import { TokenContext } from "../utils/TokenContext";
 import { Navigate, Outlet } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 const ProtectedRoute = () => {
-  const { decodedToken } = useContext(TokenContext);
-
-  return decodedToken ? <Outlet /> : <Navigate to="/login" replace />;
+  const token = localStorage.getItem('token');
+  return token ? <Outlet /> : <Navigate to="/login" />;
 };
 
 export default ProtectedRoute;

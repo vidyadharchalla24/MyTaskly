@@ -4,6 +4,7 @@ import com.charan.mytaskly.config.JwtTokenHelper;
 import com.charan.mytaskly.dto.AuthRequest;
 import com.charan.mytaskly.dto.AuthResponse;
 import com.charan.mytaskly.dto.UsersDto;
+import com.charan.mytaskly.exception.ResourceNotFoundException;
 import com.charan.mytaskly.services.UsersService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> createToken(@Valid @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> createToken(@Valid @RequestBody AuthRequest authRequest)throws ResourceNotFoundException,BadCredentialsException {
         try {
             Authentication authentication = new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword());
             authenticationManager.authenticate(authentication); // This will throw BadCredentialsException if credentials are incorrect

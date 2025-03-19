@@ -21,4 +21,6 @@ public interface OrganizationsRepository extends JpaRepository<Organizations,Str
     @Query("SELECT org.projects FROM Organizations org WHERE org.organizationsId=:organizationsId")
     List<Projects> getAllProjectByOrganizationId(@Param("organizationsId") String organizationsId);
 
+    @Query("SELECT org FROM Organizations org WHERE org.owner.userId=:userId")
+    List<Organizations> getOrganizationByUserId(@Param("userId") String userId);
 }

@@ -17,4 +17,6 @@ public interface OrganizationsService {
     String deleteOrganization(String organizationName);
 
     List<Projects> getAllProjectByOrganizationId(String organizationsId);
+
+    List<Organizations> getOrganizationByUserId(String userId);
 }

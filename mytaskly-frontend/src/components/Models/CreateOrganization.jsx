@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useContext, useState } from "react";
 import api from "../../utils/api";
+import { UserContext } from "../../context/UserContext";
 
-const CreateOrganization = ({ userId, onClose, onSuccess }) => {
+const CreateOrganization = ({ userId, onClose }) => {
   const [showSuccess, setShowSuccess] = useState(false);
-  const navigate = useNavigate();
-   const location = useLocation();
-  const { organizationName } = location.state;
+  const {setIsOrganizationUpdated} = useContext(UserContext);
+  const [organizationName,setOrganizationName] = useState('');
 
   const handleSubmit = async () => {
     if (!organizationName.trim()) {
@@ -20,23 +19,23 @@ const CreateOrganization = ({ userId, onClose, onSuccess }) => {
 
     try {
       const response = await api.post(
-        `/api/v1/organizations/${userId}?organizationName=${organizationName}`
+        `/api/v1/organizations/${userId}`,
+        null,
+        { params: { organizationName: organizationName } }
       );
 
       if (response.status === 200 || response.status === 201) {
         setShowSuccess(true); // Show success modal
-
+        setIsOrganizationUpdated(true);
         setTimeout(() => {
           setShowSuccess(false);
-          onClose(); 
-        navigate("/dashboard"); 
+          onClose();
         }, 1000);
         
       }
       setOrganizationName("");
     } catch (error) {
-      console.error("Error creating organization:", error);
-      alert("Failed to create organization. Please try again.");
+      alert(`${error.response?.data?.message}`);
     }
   };
 

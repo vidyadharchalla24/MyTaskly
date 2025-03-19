@@ -17,4 +17,5 @@ public interface ProjectsRepository extends JpaRepository<Projects,String> {
     @Query("SELECT p FROM Projects p WHERE p.organization.organizationName =:organizationName")
     List<Projects> getProjectByOrganizationName(@Param("organizationName") String organizationName);
 
+
 }
