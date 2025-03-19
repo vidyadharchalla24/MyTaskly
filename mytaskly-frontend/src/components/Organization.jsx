@@ -4,9 +4,11 @@ import { useLocation } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { OrganizationContext } from "../context/OrganizationContext";
 import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Organization = () => {
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState(""); 
   const [showModal, setShowModal] = useState(false);
   const [deleteProjectId, setDeleteProjectId] = useState(null);
@@ -16,6 +18,9 @@ const Organization = () => {
   const location = useLocation();
   let organizationName  = "";
 
+  const goToSprinsPage = () => {
+    navigate("/SprintsPage"); 
+  };
   useEffect(() => {
     organizationName = location.state.organizationName;
     setOrganizationName(organizationName);
@@ -107,6 +112,12 @@ const Organization = () => {
                   <FaTrash size={18} />
                 </button>
               </div>
+              <button
+        onClick={goToSprinsPage}
+        className="leading-relaxed text-base mb-2 underline decoration-1"
+      >
+        Click Here To View SprintsPage
+      </button>
             </div>
           ))}
         </div>
@@ -135,6 +146,7 @@ const Organization = () => {
               >
                 Delete
               </button>
+              
             </div>
           </div>
         </div>

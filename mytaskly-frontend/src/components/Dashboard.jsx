@@ -65,7 +65,7 @@ const Dashboard = () => {
                     onClick={() => handleClick(org)}
                     className="leading-relaxed text-base mb-2 underline decoration-1"
                   >
-                    Click Here for More Details about this Organization
+                    Click Here To View Projects
                   </button>
                 </div>
               </div>
