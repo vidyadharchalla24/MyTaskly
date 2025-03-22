@@ -8,6 +8,32 @@ const CreateIssue = ({ isOpen, onClose, onSubmit }) => {
 
   if (!isOpen) return null;
 
+  // Function to reset all form fields
+  const resetForm = () => {
+    setTitle("");
+    setAssignee("");
+    setDescription("");
+    setPriority("Medium");
+  };
+
+  // Handle submit with form reset
+  const handleSubmit = () => {
+    // Submit the current values
+    onSubmit({ title, assignee, description, priority });
+    
+    // Reset the form
+    resetForm();
+  };
+
+  // Handle cancel with form reset
+  const handleCancel = () => {
+    // Reset the form
+    resetForm();
+    
+    // Close the modal
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-3/4">
@@ -57,13 +83,13 @@ const CreateIssue = ({ isOpen, onClose, onSubmit }) => {
         {/* Buttons */}
         <div className="flex justify-center gap-4">
           <button
-            onClick={() => onSubmit({ title, assignee, description, priority })}
+            onClick={handleSubmit}
             className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition"
           >
             Submit
           </button>
           <button
-            onClick={onClose}
+            onClick={handleCancel}
             className="bg-gray-400 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 transition"
           >
             Cancel

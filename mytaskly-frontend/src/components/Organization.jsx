@@ -5,6 +5,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { OrganizationContext } from "../context/OrganizationContext";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import CreateProject from "./Models/CreateProject"; // Make sure this path is correct
 
 const Organization = () => {
   const [data, setData] = useState([]);
@@ -12,25 +13,30 @@ const Organization = () => {
   const [successMessage, setSuccessMessage] = useState(""); 
   const [showModal, setShowModal] = useState(false);
   const [deleteProjectId, setDeleteProjectId] = useState(null);
-  const {setOrganizationName} = useContext(OrganizationContext);
-  const {isProjectUpdated,setIsProjectUpdated} = useContext(UserContext);
+  const {organizationName, setOrganizationName} = useContext(OrganizationContext);
+  const {isProjectUpdated, setIsProjectUpdated} = useContext(UserContext);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState(null);
 
   const location = useLocation();
-  let organizationName  = "";
 
   const goToSprinsPage = () => {
     navigate("/SprintsPage"); 
   };
+  
   useEffect(() => {
-    organizationName = location.state.organizationName;
-    setOrganizationName(organizationName);
-    fetchProjects();
+    // Fixed the way organizationName is accessed and set
+    const orgName = location.state?.organizationName || "";
+    setOrganizationName(orgName);
+    fetchProjects(orgName);
     setIsProjectUpdated(false);
-  }, [organizationName,isProjectUpdated]);
+  }, [location.state, isProjectUpdated, setOrganizationName, setIsProjectUpdated]);
 
-  const fetchProjects = () => {
+  const fetchProjects = (orgName) => {
+    if (!orgName) return;
+    
     api
-      .get(`/api/v1/projects/${organizationName}/organizationName`)
+      .get(`/api/v1/projects/${orgName}/organizationName`)
       .then((response) => {
         setData(response.data);
       })
@@ -38,8 +44,14 @@ const Organization = () => {
   };
 
   const handleEdit = (projectId) => {
-    console.log("Edit project:", projectId);
-    // Add edit logic here
+    console.log("Edit clicked for project ID:", projectId);
+    // Find the project to edit
+    const project = data.find(project => project.projectId === projectId);
+    console.log("Found project:", project);
+    if (project) {
+      setProjectToEdit(project);
+      setShowEditModal(true);
+    }
   };
 
   // Show Modal Before Deleting
@@ -68,6 +80,12 @@ const Organization = () => {
     } catch (error) {
       console.error("Error deleting project:", error);
     }
+  };
+
+  // Close edit modal
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setProjectToEdit(null);
   };
 
   return (
@@ -113,11 +131,11 @@ const Organization = () => {
                 </button>
               </div>
               <button
-        onClick={goToSprinsPage}
-        className="leading-relaxed text-base mb-2 underline decoration-1"
-      >
-        Click Here To View SprintsPage
-      </button>
+                onClick={goToSprinsPage}
+                className="leading-relaxed text-base mb-2 underline decoration-1"
+              >
+                Click Here To View SprintsPage
+              </button>
             </div>
           ))}
         </div>
@@ -127,7 +145,7 @@ const Organization = () => {
 
       {/* Delete Confirmation Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
             <h2 className="text-xl font-bold text-gray-800">Confirm Delete</h2>
             <p className="text-gray-600 mt-2">
@@ -146,11 +164,143 @@ const Organization = () => {
               >
                 Delete
               </button>
-              
             </div>
           </div>
         </div>
       )}
+
+      {/* Edit Project Modal */}
+      {showEditModal && projectToEdit && (
+        <EditProject 
+          project={projectToEdit} 
+          onClose={handleCloseEditModal} 
+          setSuccessMessage={setSuccessMessage}
+          organizationName={organizationName}
+          setIsProjectUpdated={setIsProjectUpdated}
+        />
+      )}
+    </div>
+  );
+};
+
+// Create a new EditProject component based on the CreateProject component
+const EditProject = ({ project, onClose, setSuccessMessage, organizationName, setIsProjectUpdated }) => {
+  const [projectName, setProjectName] = useState(project.projectName || "");
+  const [projectDescription, setProjectDescription] = useState(project.projectDescription || "");
+  const [projectStatus, setProjectStatus] = useState(project.projectStatus || "");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [localSuccessMessage, setLocalSuccessMessage] = useState("");
+
+  const handleSubmit = async () => {
+    setErrorMessage("");
+    setLocalSuccessMessage("");
+
+    if (!organizationName) {
+      setErrorMessage("Organization name is missing!");
+      return;
+    }
+
+    if (!projectName || !projectDescription || !projectStatus) {
+      setErrorMessage("All fields are required.");
+      return;
+    }
+
+    try {
+      // Use the project ID from the project being edited
+      const response = await api.put(
+        `/api/v1/projects/${project.projectId}`,
+        { projectName, projectDescription, projectStatus }
+      );
+      
+      setLocalSuccessMessage("Project updated successfully!");
+      setSuccessMessage("Project updated successfully!");
+      setIsProjectUpdated(true);
+      
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (error) {
+      console.error("API Error:", error.response?.data);
+      setErrorMessage(error.response?.data?.message || "Error updating project.");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 w-full font-[Poppins] z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
+        <h1 className="text-center font-bold text-xl">Edit Project</h1>
+
+        <div className="text-center mt-5">
+          <label>Please update project details</label>
+        </div>
+
+        <div className="flex flex-col items-center mt-6 gap-3">
+          {[
+            { label: "Project Name", type: "text", value: projectName, setter: setProjectName },
+            { label: "Project Description", type: "textarea", value: projectDescription, setter: setProjectDescription },
+          ].map(({ label, type, value, setter }, index) => (
+            <div key={index} className="flex flex-col w-96">
+              <label className="text-left font-semibold">{label}</label>
+              {type === "text" ? (
+                <input
+                  type="text"
+                  placeholder={`Enter ${label.toLowerCase()}`}
+                  value={value}
+                  onChange={(e) => setter(e.target.value)}
+                  className="mt-2 p-3 border border-gray-300 rounded-md"
+                />
+              ) : (
+                <textarea
+                  placeholder={`Enter ${label.toLowerCase()}`}
+                  value={value}
+                  onChange={(e) => setter(e.target.value)}
+                  className="mt-2 p-3 border border-gray-300 rounded-md resize-none"
+                  rows="4"
+                />
+              )}
+            </div>
+          ))}
+
+          <div className="flex flex-col w-96">
+            <label className="text-left font-semibold">Project Status</label>
+            <select
+              value={projectStatus}
+              onChange={(e) => setProjectStatus(e.target.value)}
+              className="mt-2 p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 outline-none w-full"
+            >
+              <option value="">Select Status</option>
+              <option value="PLANNED">Planned</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="ON_HOLD">On Hold</option>
+            </select>
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div className="mt-4 text-red-600 font-semibold text-center">
+            {errorMessage}
+          </div>
+        )}
+
+        {localSuccessMessage && (
+          <div className="mt-4 text-green-600 font-semibold text-center">
+            {localSuccessMessage}
+          </div>
+        )}
+
+        <div className="flex justify-end mt-7 space-x-2">
+          <button onClick={onClose} className="bg-gray-300 px-4 py-2 rounded-lg">
+            Cancel
+          </button>
+          <button
+            className="bg-[#EFB036] text-white px-4 py-2 rounded-lg"
+            onClick={handleSubmit}
+          >
+            Update
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
