@@ -13,6 +13,7 @@ import Organization from "./components/Organization";
 import  {SprintsPage}  from "./components/SprintsPage";
 import { useEffect } from "react";
 import { setAxiosInterceptors } from "./utils/api";
+import GanttChart from "./components/GanttChart";
 
 
 
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/organization" element={<Organization/>}/>
             <Route path="/SprintsPage" element={<SprintsPage/>}/>
+            <Route path="/gantchart" element={<GanttChart />} />
           </Route>
         </Route>
       </Routes>

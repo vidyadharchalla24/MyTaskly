@@ -19,6 +19,7 @@ const Organization = () => {
   const {setProjectId} = useContext(ProjectsContext);
   const [showEditModal, setShowEditModal] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
+  const [loading,setLoading] = useState(false);
 
   const location = useLocation();
 
@@ -91,6 +92,19 @@ const Organization = () => {
     setProjectToEdit(null);
   };
 
+  const handleGantChartGenration = async (projectId,projectName) =>{
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/v1/sprints/project/${projectId}`);
+      setLoading(false);
+      navigate('/gantchart',{state:{sprints: response?.data,
+        projectName: projectName
+      }});
+    } catch (error) {
+      
+    }
+  }
+
   return (
     <div className="p-6 font-[Poppins]">
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Project Details</h1>
@@ -120,6 +134,13 @@ const Organization = () => {
 
               {/* Edit & Delete Buttons */}
               <div className="flex justify-center mt-4">
+                <button
+                  onClick={() => handleGantChartGenration(project.projectId,project.projectName)}
+                  className="flex items-center justify-center p-2 h-10 rounded-full bg-white text-[#23486A] hover:bg-gray-200 mr-3"
+                  disabled={loading}
+                >
+                  {!loading? "GantChartt": "GanttChart...."}
+                </button>
                 <button
                   onClick={() => handleEdit(project.projectId)}
                   className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-[#23486A] hover:bg-gray-200 mr-3"
