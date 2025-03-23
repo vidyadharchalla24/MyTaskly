@@ -10,8 +10,10 @@ import VerifyOtp from "./components/forgotPassword/verifyOtp";
 import ResetPassword from "./components/forgotPassword/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Organization from "./components/Organization";
+import  {SprintsPage}  from "./components/SprintsPage";
 import { useEffect } from "react";
 import { setAxiosInterceptors } from "./utils/api";
+
 
 
 export default function App() {
@@ -40,6 +42,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/organization" element={<Organization/>}/>
+            <Route path="/SprintsPage" element={<SprintsPage/>}/>
           </Route>
         </Route>
       </Routes>
