@@ -6,6 +6,7 @@ import { OrganizationContext } from "../context/OrganizationContext";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import CreateProject from "./Models/CreateProject"; // Make sure this path is correct
+import { ProjectsContext } from "../context/ProjectsContext";
 
 const Organization = () => {
   const [data, setData] = useState([]);
@@ -15,12 +16,14 @@ const Organization = () => {
   const [deleteProjectId, setDeleteProjectId] = useState(null);
   const {organizationName, setOrganizationName} = useContext(OrganizationContext);
   const {isProjectUpdated, setIsProjectUpdated} = useContext(UserContext);
+  const {setProjectId} = useContext(ProjectsContext);
   const [showEditModal, setShowEditModal] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
 
   const location = useLocation();
 
-  const goToSprinsPage = () => {
+  const goToSprintsPage = (projectId) => {
+    setProjectId(projectId);
     navigate("/SprintsPage"); 
   };
   
@@ -131,7 +134,7 @@ const Organization = () => {
                 </button>
               </div>
               <button
-                onClick={goToSprinsPage}
+                onClick={()=>goToSprintsPage(project.projectId)}
                 className="leading-relaxed text-base mb-2 underline decoration-1"
               >
                 Click Here To View SprintsPage

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     DndContext,
     closestCorners,
@@ -15,6 +15,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import CreateIssue from './Models/CreateIssue';
+import { ProjectsContext } from '../context/ProjectsContext';
+import api from '../utils/api';
 
 export const SprintsPage = () => {
     const [sprintName, setSprintName] = useState('');
@@ -25,6 +27,26 @@ export const SprintsPage = () => {
     const [activeIssue, setActiveIssue] = useState(null);
     const [sprints, setSprints] = useState([]);
     const [activeSprint, setActiveSprint] = useState(null);
+    const {projectId,setSprintsUpdates,sprintsUpdates} = useContext(ProjectsContext);
+
+    useEffect(()=>{
+        if(projectId){
+            fetchSprints();
+        console.log(projectId);
+        setSprintsUpdates(false);
+        }
+        console.log(projectId);
+    },[projectId,sprintsUpdates]);
+
+    const fetchSprints = async () =>{
+        try{
+            const response = await api.get(`/api/v1/sprints/project/${projectId}`);
+            setSprints(response?.data);
+            console.log(response?.data);
+        }catch(err){
+            console.log(err.response?.message);
+        }
+    }
 
     // Configure sensors for drag detection
     const sensors = useSensors(
@@ -59,27 +81,32 @@ export const SprintsPage = () => {
     };
 
     // Handle sprint creation
-    const handleCreateSprint = () => {
+    const handleCreateSprint =async () => {
         if (sprintName && startDate && endDate) {
-            const newSprint = {
-                id: `sprint-${Date.now()}`,
-                name: sprintName,
-                startDate,
-                endDate,
-                isStarted: false
-            };
-            
-            setSprints(prev => [...prev, newSprint]);
-            
-            // Set as active sprint if it's the first one
-            if (!activeSprint) {
-                setActiveSprint(newSprint);
+            try{
+                const response = await api.post(`/api/v1/sprints/${projectId}`,
+                    {
+                        sprintName,
+                        startDate,
+                        endDate
+                    }
+                );
+                console.log(response?.data);
+                sprintsUpdates(true);
+                if (!activeSprint) {
+                    setActiveSprint(response?.data);
+                }
+                
+                // Reset form
+                setSprintName('');
+                setStartDate(new Date().toISOString().split('T')[0]);
+                setEndDate('');
+            }catch(err){
+                console.log(err);
             }
             
-            // Reset form
-            setSprintName('');
-            setStartDate(new Date().toISOString().split('T')[0]);
-            setEndDate('');
+            // Set as active sprint if it's the first one
+            
         } else {
             alert("Please fill all sprint details");
         }
@@ -234,12 +261,12 @@ export const SprintsPage = () => {
                     <h2 className="text-xl font-bold mb-4">Sprints</h2>
                     <div className="space-y-4">
                         {sprints.map(sprint => (
-                            <div key={sprint.id} 
-                                className={`p-4 rounded-lg shadow-md border ${activeSprint?.id === sprint.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
+                            <div key={sprint.sprintId} 
+                                className={`p-4 rounded-lg shadow-md border ${activeSprint?.sprintId === sprint.sprintId ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
                             >
                                 <div className="flex justify-between items-center">
                                     <div>
-                                        <h3 className="text-lg font-semibold">Sprint: {sprint.name}</h3>
+                                        <h3 className="text-lg font-semibold">Sprint: {sprint.sprintName}</h3>
                                         <p className="text-gray-600">
                                             {sprint.startDate} to {sprint.endDate}
                                         </p>
@@ -248,12 +275,12 @@ export const SprintsPage = () => {
                                         <button
                                             onClick={() => handleSetActiveSprint(sprint)}
                                             className={`font-bold py-2 px-4 rounded-lg transition 
-                                            ${activeSprint?.id === sprint.id ? "bg-blue-100 text-blue-800 border border-blue-500" : "bg-gray-200 hover:bg-gray-300"}`}
+                                            ${activeSprint?.sprintId === sprint.sprintId ? "bg-blue-100 text-blue-800 border border-blue-500" : "bg-gray-200 hover:bg-gray-300"}`}
                                         >
-                                            {activeSprint?.id === sprint.id ? "Active Sprint" : "Set Active"}
+                                            {activeSprint?.sprintId === sprint.sprintId ? "Active Sprint" : "Set Active"}
                                         </button>
                                         <button
-                                            onClick={() => handleStartSprint(sprint.id)}
+                                            onClick={() => handleStartSprint(sprint.sprintId)}
                                             disabled={sprint.isStarted}
                                             className={`font-bold py-2 px-4 rounded-lg transition 
                                             ${sprint.isStarted ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 text-white hover:bg-green-600"}`}

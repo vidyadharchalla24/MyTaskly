@@ -41,12 +41,7 @@ public class SprintsServiceImpl implements SprintsService{
 
     @Override
     public List<Sprints> getAllSprints() {
-        List<Sprints> sprintsList = sprintsRepository.findAll();
-        if(sprintsList.isEmpty()){
-            throw new ResourceNotFoundException("No Sprints Found!!");
-        }
-
-        return sprintsList;
+        return sprintsRepository.findAll();
     }
 
     @Override
@@ -57,12 +52,8 @@ public class SprintsServiceImpl implements SprintsService{
     }
 
     @Override
-    public List<Sprints> getAllSprintsByProjectId(String projectId) {
-        List<Sprints> sprintsList = sprintsRepository.getAllSprintsByProjectId(projectId);
-        if(sprintsList.isEmpty()){
-            throw new ResourceNotFoundException("No Sprints Found!!");
-        }
-        return sprintsList;
+    public List<Sprints> getAllSprintsByProjectId(String projectId){
+        return sprintsRepository.getAllSprintsByProjectId(projectId);
     }
 
     @Override

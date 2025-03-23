@@ -10,5 +10,5 @@ export const OrganizationProvider =({children}) =>{
         <OrganizationContext.Provider value={{organizationName,setOrganizationName}}>
             {children}
         </OrganizationContext.Provider>
-    )
-}
+    );
+};
