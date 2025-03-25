@@ -5,8 +5,6 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { OrganizationContext } from "../context/OrganizationContext";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import CreateProject from "./Models/CreateProject"; // Make sure this path is correct
-import { ProjectsContext } from "../context/ProjectsContext";
 
 const Organization = () => {
   const [data, setData] = useState([]);
@@ -16,7 +14,6 @@ const Organization = () => {
   const [deleteProjectId, setDeleteProjectId] = useState(null);
   const {organizationName, setOrganizationName} = useContext(OrganizationContext);
   const {isProjectUpdated, setIsProjectUpdated} = useContext(UserContext);
-  const {setProjectId} = useContext(ProjectsContext);
   const [showEditModal, setShowEditModal] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [loading,setLoading] = useState(false);
@@ -24,8 +21,7 @@ const Organization = () => {
   const location = useLocation();
 
   const goToSprintsPage = (projectId) => {
-    setProjectId(projectId);
-    navigate("/SprintsPage"); 
+    navigate(`/SprintsPage/${projectId}`); 
   };
   
   useEffect(() => {

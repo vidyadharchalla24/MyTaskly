@@ -61,8 +61,6 @@ public class SprintsServiceImpl implements SprintsService{
         Sprints existingSprints = sprintsRepository.findById(sprintId).orElseThrow(
                 ()-> new ResourceNotFoundException("No Sprints Found!!")
         );
-
-        existingSprints.setSprintStatus(sprints.getSprintStatus());
         existingSprints.setSprintName(sprints.getSprintName());
         existingSprints.setStartDate(sprints.getStartDate());
         existingSprints.setEndDate(sprints.getEndDate());
