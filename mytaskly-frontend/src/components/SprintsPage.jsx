@@ -42,6 +42,7 @@ export const SprintsPage = () => {
   const [isSprintEdited, setIsSprintEdited] = useState(false);
   const [editSprintId, setEditSprintId] = useState("");
   const { setSprintsUpdates, sprintsUpdates } = useContext(ProjectsContext);
+
   const { projectId } = useParams();
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export const SprintsPage = () => {
       },
     })
   );
+
 
   // Columns to store issues
   const [columns, setColumns] = useState({
@@ -137,11 +139,11 @@ export const SprintsPage = () => {
         prev.map((sprint) =>
           sprint.sprintId === editSprintId
             ? {
-                ...sprint,
-                sprintName: sprintName,
-                startDate: startDate,
-                endDate: endDate,
-              }
+              ...sprint,
+              sprintName: sprintName,
+              startDate: startDate,
+              endDate: endDate,
+            }
             : sprint
         )
       );
@@ -491,9 +493,8 @@ export const SprintsPage = () => {
       {/* Sprint List */}
       {sprints.length > 0 && (
         <div
-          className={`mt-6 bg-white font-[Poppins] p-6 rounded-lg shadow-md w-full ${
-            isSprintEdited && "pointer-events-none opacity-50"
-          }`}
+          className={`mt-6 bg-white font-[Poppins] p-6 rounded-lg shadow-md w-full ${isSprintEdited && "pointer-events-none opacity-50"
+            }`}
         >
           <h2 className="text-xl font-bold mb-4">Sprints</h2>
           <div className="space-y-4">
@@ -502,11 +503,10 @@ export const SprintsPage = () => {
               return (
                 <div
                   key={sprint.sprintId}
-                  className={`p-4 rounded-lg shadow-md border ${
-                    activeSprint?.sprintId === sprint.sprintId
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200"
-                  }`}
+                  className={`p-4 rounded-lg shadow-md border ${activeSprint?.sprintId === sprint.sprintId
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200"
+                    }`}
                 >
                   <div className="flex justify-between items-center">
                     <div>
@@ -546,14 +546,13 @@ export const SprintsPage = () => {
                             sprint.sprintStatus === SprintStatus.CANCELLED
                           }
                           className={`font-bold py-2 px-4 rounded-lg transition 
-                                                    ${
-                                                      sprint.sprintStatus ===
-                                                        SprintStatus.COMPLETED ||
-                                                      sprint.sprintStatus ===
-                                                        SprintStatus.CANCELLED
-                                                        ? "bg-gray-400 cursor-not-allowed"
-                                                        : "bg-yellow-500 text-white hover:bg-yellow-600"
-                                                    }`}
+                                                    ${sprint.sprintStatus ===
+                              SprintStatus.COMPLETED ||
+                              sprint.sprintStatus ===
+                              SprintStatus.CANCELLED
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-yellow-500 text-white hover:bg-yellow-600"
+                            }`}
                         >
                           Cancel
                         </button>
@@ -565,14 +564,13 @@ export const SprintsPage = () => {
                             sprint.sprintStatus === SprintStatus.CANCELLED
                           }
                           className={`font-bold py-2 px-4 rounded-lg transition 
-                                                    ${
-                                                      sprint.sprintStatus ===
-                                                        SprintStatus.COMPLETED ||
-                                                      sprint.sprintStatus ===
-                                                        SprintStatus.CANCELLED
-                                                        ? "bg-gray-400 cursor-not-allowed"
-                                                        : "bg-gray-200 hover:bg-gray-300"
-                                                    }`}
+                                                    ${sprint.sprintStatus ===
+                              SprintStatus.COMPLETED ||
+                              sprint.sprintStatus ===
+                              SprintStatus.CANCELLED
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-gray-200 hover:bg-gray-300"
+                            }`}
                         >
                           Set Active
                         </button>
@@ -595,9 +593,8 @@ export const SprintsPage = () => {
       )}
 
       <div
-        className={`mt-6 bg-[#23486A] font-[Poppins]  p-6 rounded-lg shadow-md w-full ${
-          isSprintEdited && "pointer-events-none opacity-50"
-        }`}
+        className={`mt-6 bg-[#23486A] font-[Poppins]  p-6 rounded-lg shadow-md w-full ${isSprintEdited && "pointer-events-none opacity-50"
+          }`}
       >
         <h2 className="text-xl font-bold mb-4 text-white">Issues</h2>
 
@@ -634,10 +631,10 @@ export const SprintsPage = () => {
                   columnId === "todo"
                     ? "To Do"
                     : columnId === "inProgress"
-                    ? "In Progress"
-                    : columnId === "inReview"
-                    ? "In Review"
-                    : "Done"
+                      ? "In Progress"
+                      : columnId === "inReview"
+                        ? "In Review"
+                        : "Done"
                 }
                 issues={columns[columnId].filter(
                   (issue) =>
@@ -697,11 +694,10 @@ const DroppableColumn = ({
           onClick={() => setIsModalOpen(true)}
           disabled={!isCreateEnabled}
           className={`font-bold  bg-[#EFB036]  py-2 px-4 rounded-lg transition w-full
-                    ${
-                      !isCreateEnabled
-                        ? "bg-[#EFB036]  cursor-not-allowed"
-                        : "bg-[#EFB036] text-white "
-                    }`}
+                    ${!isCreateEnabled
+              ? "bg-[#EFB036]  cursor-not-allowed"
+              : "bg-[#EFB036] text-white "
+            }`}
         >
           Create Issue
         </button>
@@ -741,6 +737,11 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+  const [showCommentBox, setShowCommentBox] = useState(false);
+  const toggleCommentBox = () => {
+    setShowCommentBox((prev) => !prev);
+  };
+
 
   return (
     <div
@@ -754,6 +755,14 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
       <p className="text-gray-600">Assigned to: {issue.assignee}</p>
       <p className="text-gray-500 text-sm">{issue.description}</p>
       <p className="text-gray-500 text-sm">{issue.priority}</p>
+
+      {/* Display the column where the issue is currently located */}
+      {!isDragging && (
+        <p className="text-xs font-bold text-blue-600 text-center mt-2">
+          Column: {issue.currentColumn || "To Do"}
+        </p>
+      )}
+
       <div className="flex justify-center">
         {/* Edit and Delete icons */}
         <button
@@ -767,6 +776,59 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
           <FiTrash2 size={20} />
         </button>
       </div>
+      {/* Button to show/hide comment section */}
+     <div className="flex justify-center">
+     <button
+        className="p-2 rounded-lg text-white bg-[#EFB036]"
+        onClick={toggleCommentBox}
+      >
+        {showCommentBox ? "Hide Comments" : "Add Your Comments"}
+      </button>
+     </div>
+
+      {/* Comment section (only shown when showCommentBox is true) */}
+      {showCommentBox && (
+        <div className="mt-3 w-full max-w-md">
+          <label
+            htmlFor="message"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Your message
+          </label>
+          <textarea
+            id="message"
+            rows="4"
+            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Write your comments here ..."
+          ></textarea>
+
+          <label
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="file_input"
+          >
+            Upload file
+          </label>
+          <input
+            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+            id="file_input"
+            type="file"
+          />
+
+          <div className="flex justify-between mt-3">
+            {/* Cancel button hides the comment section */}
+            <button
+              className="p-2 rounded-lg text-white font-[Poppins] bg-gray-500"
+              onClick={toggleCommentBox}
+            >
+              Cancel
+            </button>
+
+            <button className="p-2 rounded-lg text-white font-[Poppins] bg-[#EFB036]">
+              Submit
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -795,3 +857,4 @@ const IssueCard = ({ issue }) => {
     </div>
   );
 };
+
