@@ -19,6 +19,8 @@ import { ProjectsContext } from "../context/ProjectsContext";
 import api from "../utils/api";
 import { FiEdit, FiTrash2 } from "react-icons/fi"; // Import icons
 import { useParams } from "react-router-dom";
+import IssueCard from "./issues/IssueCard";
+import { UserContext } from "../context/UserContext";
 
 // Sprint status enum
 const SprintStatus = {
@@ -42,6 +44,24 @@ export const SprintsPage = () => {
   const [isSprintEdited, setIsSprintEdited] = useState(false);
   const [editSprintId, setEditSprintId] = useState("");
   const { setSprintsUpdates, sprintsUpdates } = useContext(ProjectsContext);
+  const { userDetails } = useContext(UserContext);
+
+  // Columns to store issues
+  const [columns, setColumns] = useState({
+    TO_DO: [],
+    IN_PROGRESS: [],
+    REVIEW: [],
+    DONE: [],
+  });
+
+  // Configure sensors for drag detection
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   const { projectId } = useParams();
 
@@ -55,48 +75,64 @@ export const SprintsPage = () => {
   const fetchSprints = async () => {
     try {
       const response = await api.get(`/api/v1/sprints/project/${projectId}`);
-      // Map the response data to include the status property if it doesn't exist
-      setSprints(response?.data);
-      response?.data.map((sprint) => {
-        sprint.sprintStatus === SprintStatus.ACTIVE && setActiveSprint(sprint);
-      });
-      console.log(response?.data);
+      const sprintsData = response?.data;
+      console.log(sprintsData);
+      // Set all sprints
+      setSprints(sprintsData);
+
+      // Find and set the active sprint
+      const active = sprintsData.find(
+        (sprint) => sprint.sprintStatus === SprintStatus.ACTIVE
+      );
+      if (active) {
+        setActiveSprint(active);
+      }
+
+      // Collect and categorize issues from the active sprint
+      const categorizedIssues = {
+        TO_DO: [],
+        IN_PROGRESS: [],
+        REVIEW: [],
+        DONE: [],
+      };
+
+      if (active?.issues?.length > 0) {
+        active.issues.forEach((issue) => {
+          const status = issue.issueStatus;
+          if (categorizedIssues[status]) {
+            categorizedIssues[status].push(issue);
+          }
+        });
+      }
+
+      setColumns(categorizedIssues);
     } catch (err) {
       console.log(err.response?.message);
     }
   };
 
-  // Configure sensors for drag detection
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
-
-
-  // Columns to store issues
-  const [columns, setColumns] = useState({
-    todo: [],
-    inProgress: [],
-    inReview: [],
-    done: [],
-  });
-
   // Handle issue submission
-  const handleSubmitIssue = (issueData) => {
-    const newIssue = {
-      ...issueData,
-      id: `issue-${Date.now()}`,
-      columnId: "todo",
-      sprintId: activeSprint ? activeSprint.sprintId : null,
-    };
-    setColumns((prev) => ({
-      ...prev,
-      todo: [...prev.todo, newIssue],
-    }));
+  const handleSubmitIssue = async (issueData) => {
+    try {
+      const sprintId = activeSprint?.sprintId;
+    console.log(issueData?.priority);
+    const response = await api.post(`/api/v1/issues/${sprintId}/sprint`, {
+      title: issueData?.title,
+      description: issueData?.description,
+      issuePriority: issueData?.priority,
+      assigneeEmail: issueData?.assignee,
+      reporterEmail: userDetails?.email,
+      issueStatus: "TO_DO",
+      projectId: projectId,
+    });
+
+    console.log(response);
+    setSprintsUpdates(true);
+
     setIsModalOpen(false);
+    } catch (error) {
+      console.log(error.response?.data?.message);
+    }
   };
 
   // Handle sprint creation
@@ -139,11 +175,11 @@ export const SprintsPage = () => {
         prev.map((sprint) =>
           sprint.sprintId === editSprintId
             ? {
-              ...sprint,
-              sprintName: sprintName,
-              startDate: startDate,
-              endDate: endDate,
-            }
+                ...sprint,
+                sprintName: sprintName,
+                startDate: startDate,
+                endDate: endDate,
+              }
             : sprint
         )
       );
@@ -280,7 +316,7 @@ export const SprintsPage = () => {
   // Find the column that contains an issue
   const findColumnOfIssue = (id) => {
     for (const [columnId, issues] of Object.entries(columns)) {
-      if (issues.find((issue) => issue.id === id)) {
+      if (issues.find((issue) => issue?.issueId === id)) {
         return columnId;
       }
     }
@@ -290,18 +326,18 @@ export const SprintsPage = () => {
   // Handle drag start
   const handleDragStart = (event) => {
     const { active } = event;
-    setActiveId(active.id);
+    setActiveId(active?.id);
 
     // Find the issue being dragged
-    const columnId = findColumnOfIssue(active.id);
+    const columnId = findColumnOfIssue(active?.id);
     if (columnId) {
-      const issue = columns[columnId].find((item) => item.id === active.id);
+      const issue = columns[columnId].find((item) => item.issueId === active?.id);
       setActiveIssue(issue);
     }
   };
 
   // Handle drag end
-  const handleDragEnd = (event) => {
+  const handleDragEnd =async (event) => {
     const { active, over } = event;
 
     if (!over) {
@@ -311,7 +347,7 @@ export const SprintsPage = () => {
     }
 
     // Find source column
-    const sourceColumnId = findColumnOfIssue(active.id);
+    const sourceColumnId = findColumnOfIssue(active?.id);
 
     // Determine target column - check if over.id is a column id or an issue id
     let targetColumnId;
@@ -332,24 +368,29 @@ export const SprintsPage = () => {
 
         // Find the issue to move
         const issueToMove = newColumns[sourceColumnId].find(
-          (issue) => issue.id === active.id
+          (issue) => issue?.issueId === active.id
         );
 
         if (!issueToMove) return prev;
 
         // Remove from source column
         newColumns[sourceColumnId] = newColumns[sourceColumnId].filter(
-          (issue) => issue.id !== active.id
+          (issue) => issue?.issueId !== active.id
         );
-
         // Add to target column
         newColumns[targetColumnId] = [
           ...newColumns[targetColumnId],
           issueToMove,
         ];
-
         return newColumns;
       });
+
+      try {
+        const response = await api.put(`/api/v1/issues/${active?.id}/priority/${targetColumnId}`);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
     } else if (sourceColumnId === targetColumnId) {
       // Handle reordering within same column
       // For simplicity, not implementing this part since focus is on cross-column movement
@@ -493,8 +534,9 @@ export const SprintsPage = () => {
       {/* Sprint List */}
       {sprints.length > 0 && (
         <div
-          className={`mt-6 bg-white font-[Poppins] p-6 rounded-lg shadow-md w-full ${isSprintEdited && "pointer-events-none opacity-50"
-            }`}
+          className={`mt-6 bg-white font-[Poppins] p-6 rounded-lg shadow-md w-full ${
+            isSprintEdited && "pointer-events-none opacity-50"
+          }`}
         >
           <h2 className="text-xl font-bold mb-4">Sprints</h2>
           <div className="space-y-4">
@@ -503,10 +545,11 @@ export const SprintsPage = () => {
               return (
                 <div
                   key={sprint.sprintId}
-                  className={`p-4 rounded-lg shadow-md border ${activeSprint?.sprintId === sprint.sprintId
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200"
-                    }`}
+                  className={`p-4 rounded-lg shadow-md border ${
+                    activeSprint?.sprintId === sprint.sprintId
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
+                  }`}
                 >
                   <div className="flex justify-between items-center">
                     <div>
@@ -546,13 +589,14 @@ export const SprintsPage = () => {
                             sprint.sprintStatus === SprintStatus.CANCELLED
                           }
                           className={`font-bold py-2 px-4 rounded-lg transition 
-                                                    ${sprint.sprintStatus ===
-                              SprintStatus.COMPLETED ||
-                              sprint.sprintStatus ===
-                              SprintStatus.CANCELLED
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-yellow-500 text-white hover:bg-yellow-600"
-                            }`}
+                                                    ${
+                                                      sprint.sprintStatus ===
+                                                        SprintStatus.COMPLETED ||
+                                                      sprint.sprintStatus ===
+                                                        SprintStatus.CANCELLED
+                                                        ? "bg-gray-400 cursor-not-allowed"
+                                                        : "bg-yellow-500 text-white hover:bg-yellow-600"
+                                                    }`}
                         >
                           Cancel
                         </button>
@@ -564,13 +608,14 @@ export const SprintsPage = () => {
                             sprint.sprintStatus === SprintStatus.CANCELLED
                           }
                           className={`font-bold py-2 px-4 rounded-lg transition 
-                                                    ${sprint.sprintStatus ===
-                              SprintStatus.COMPLETED ||
-                              sprint.sprintStatus ===
-                              SprintStatus.CANCELLED
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-gray-200 hover:bg-gray-300"
-                            }`}
+                                                    ${
+                                                      sprint.sprintStatus ===
+                                                        SprintStatus.COMPLETED ||
+                                                      sprint.sprintStatus ===
+                                                        SprintStatus.CANCELLED
+                                                        ? "bg-gray-400 cursor-not-allowed"
+                                                        : "bg-gray-200 hover:bg-gray-300"
+                                                    }`}
                         >
                           Set Active
                         </button>
@@ -593,8 +638,9 @@ export const SprintsPage = () => {
       )}
 
       <div
-        className={`mt-6 bg-[#23486A] font-[Poppins]  p-6 rounded-lg shadow-md w-full ${isSprintEdited && "pointer-events-none opacity-50"
-          }`}
+        className={`mt-6 bg-[#23486A] font-[Poppins]  p-6 rounded-lg shadow-md w-full ${
+          isSprintEdited || (activeSprint?.sprintStatus === "COMPLETED")&& "pointer-events-none opacity-50"
+        }`}
       >
         <h2 className="text-xl font-bold mb-4 text-white">Issues</h2>
 
@@ -628,13 +674,13 @@ export const SprintsPage = () => {
                 key={columnId}
                 id={columnId}
                 title={
-                  columnId === "todo"
-                    ? "To Do"
-                    : columnId === "inProgress"
-                      ? "In Progress"
-                      : columnId === "inReview"
-                        ? "In Review"
-                        : "Done"
+                  columnId === "TO_DO"
+                    ? "TO_DO"
+                    : columnId === "IN_PROGRESS"
+                    ? "IN_PROGRESS"
+                    : columnId === "REVIEW"
+                    ? "REVIEW"
+                    : "DONE"
                 }
                 issues={columns[columnId].filter(
                   (issue) =>
@@ -672,7 +718,7 @@ const DroppableColumn = ({
   title,
   issues,
   setIsModalOpen,
-  isCreateEnabled = true,
+  isCreateEnabled = true
 }) => {
   const { isOver, setNodeRef } = useSortable({
     id,
@@ -689,15 +735,16 @@ const DroppableColumn = ({
     >
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
 
-      {id === "todo" && (
+      {id === "TO_DO" && (
         <button
           onClick={() => setIsModalOpen(true)}
           disabled={!isCreateEnabled}
           className={`font-bold  bg-[#EFB036]  py-2 px-4 rounded-lg transition w-full
-                    ${!isCreateEnabled
-              ? "bg-[#EFB036]  cursor-not-allowed"
-              : "bg-[#EFB036] text-white "
-            }`}
+                    ${
+                      !isCreateEnabled
+                        ? "bg-[#EFB036]  cursor-not-allowed"
+                        : "bg-[#EFB036] text-white "
+                    }`}
         >
           Create Issue
         </button>
@@ -706,7 +753,7 @@ const DroppableColumn = ({
       <div className="mt-4 space-y-2">
         {issues.map((issue) => (
           <DraggableIssue
-            key={issue.id}
+            key={issue?.issueId}
             issue={issue}
             setIsModalOpen={setIsModalOpen}
           />
@@ -725,7 +772,7 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
     transition,
     isDragging,
   } = useSortable({
-    id: issue.id,
+    id: issue?.issueId,
     data: {
       type: "issue",
       issue,
@@ -742,7 +789,6 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
     setShowCommentBox((prev) => !prev);
   };
 
-
   return (
     <div
       ref={setNodeRef}
@@ -752,16 +798,9 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
       className="bg-white p-4 rounded-lg shadow-md cursor-pointer"
     >
       <h4 className="font-semibold">{issue.title}</h4>
-      <p className="text-gray-600">Assigned to: {issue.assignee}</p>
+      <p className="text-gray-600">Assigned to: {issue.reporter?.email}</p>
       <p className="text-gray-500 text-sm">{issue.description}</p>
-      <p className="text-gray-500 text-sm">{issue.priority}</p>
-
-      {/* Display the column where the issue is currently located */}
-      {!isDragging && (
-        <p className="text-xs font-bold text-blue-600 text-center mt-2">
-          Column: {issue.currentColumn || "To Do"}
-        </p>
-      )}
+      <p className="text-gray-500 text-sm">{issue.issuePriority}</p>
 
       <div className="flex justify-center">
         {/* Edit and Delete icons */}
@@ -777,14 +816,14 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
         </button>
       </div>
       {/* Button to show/hide comment section */}
-     <div className="flex justify-center">
-     <button
-        className="p-2 rounded-lg text-white bg-[#EFB036]"
-        onClick={toggleCommentBox}
-      >
-        {showCommentBox ? "Hide Comments" : "Add Your Comments"}
-      </button>
-     </div>
+      <div className="flex justify-center">
+        <button
+          className="p-2 rounded-lg text-white bg-[#EFB036]"
+          onClick={toggleCommentBox}
+        >
+          {showCommentBox ? "Hide Comments" : "Add Your Comments"}
+        </button>
+      </div>
 
       {/* Comment section (only shown when showCommentBox is true) */}
       {showCommentBox && (
@@ -832,29 +871,3 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
     </div>
   );
 };
-
-const IssueCard = ({ issue }) => {
-  const cardClasses = `relative bg-white p-4 rounded-lg shadow-md cursor-pointer`;
-  let priorityColor = "bg-gray-300"; // Default gray if no priority
-  if (issue.priority === "High") {
-    priorityColor = "bg-red-500"; // High -> Red
-  } else if (issue.priority === "Medium") {
-    priorityColor = "bg-yellow-500"; // Medium -> Yellow
-  } else if (issue.priority === "Low") {
-    priorityColor = "bg-green-500"; // Low -> Green
-  }
-
-  return (
-    <div className={cardClasses}>
-      <span
-        className={`absolute top-2 right-2 w-3 h-3 rounded-full ${priorityColor}`}
-      ></span>
-
-      <h4 className="font-semibold">{issue.title}</h4>
-      <p className="text-gray-600">Assigned to: {issue.assignee}</p>
-      <p className="text-gray-500 text-sm">{issue.description}</p>
-      <p className="text-gray-600">{issue.priority}</p>
-    </div>
-  );
-};
-

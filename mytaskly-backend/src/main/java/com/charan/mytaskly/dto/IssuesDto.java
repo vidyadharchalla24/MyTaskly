@@ -27,12 +27,14 @@ public class IssuesDto {
         super();
     }
 
-    public IssuesDto(String issueId, String title, String description, IssueStatus issueStatus, IssuePriority issuePriority) {
+    public IssuesDto(String issueId, String title, String description, IssueStatus issueStatus, IssuePriority issuePriority, String assigneeEmail, String reporterEmail) {
         this.issueId = issueId;
         this.title = title;
         this.description = description;
         this.issueStatus = issueStatus;
         this.issuePriority = issuePriority;
+        this.assigneeEmail = assigneeEmail;
+        this.reporterEmail = reporterEmail;
     }
 
     public String getIssueId() {

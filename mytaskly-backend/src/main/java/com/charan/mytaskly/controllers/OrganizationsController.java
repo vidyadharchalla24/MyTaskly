@@ -1,5 +1,6 @@
 package com.charan.mytaskly.controllers;
 
+import com.charan.mytaskly.dto.OrganizerDto;
 import com.charan.mytaskly.entities.Organizations;
 import com.charan.mytaskly.entities.Projects;
 import com.charan.mytaskly.services.OrganizationsService;
@@ -24,13 +25,8 @@ public class OrganizationsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Organizations>> getAllOrganizations(){
+    public ResponseEntity<List<OrganizerDto>> getAllOrganizations(){
         return ResponseEntity.ok(organizationsService.getAllOrganizations());
-    }
-
-    @GetMapping("/{organizationsId}")
-    public ResponseEntity<Organizations> getOrganizationByOrganizationsId(@PathVariable String organizationsId){
-        return ResponseEntity.ok(organizationsService.getOrganizationByOrganizationsId(organizationsId));
     }
 
     @GetMapping("/user/{userId}")

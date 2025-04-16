@@ -16,4 +16,6 @@ public interface IssuesService {
     List<Issues> getAllIssues();
 
     String updateAllIssueDetailsByIssueId(String issueId, Issues issues);
+
+    String updateIssueStatusByIssueId(String issueId, String issueStatus);
 }

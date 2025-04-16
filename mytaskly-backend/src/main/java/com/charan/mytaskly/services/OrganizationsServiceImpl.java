@@ -1,5 +1,6 @@
 package com.charan.mytaskly.services;
 
+import com.charan.mytaskly.dto.OrganizerDto;
 import com.charan.mytaskly.entities.*;
 import com.charan.mytaskly.exception.AlreadyExistsException;
 import com.charan.mytaskly.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class OrganizationsServiceImpl implements OrganizationsService{
@@ -65,21 +67,16 @@ public class OrganizationsServiceImpl implements OrganizationsService{
     }
 
     @Override
-    public List<Organizations> getAllOrganizations() {
+    public List<OrganizerDto> getAllOrganizations() {
         List<Organizations> organizationsList = organizationsRepository.findAll();
 
-        if(organizationsList.isEmpty()){
-            throw new ResourceNotFoundException("No Organizations Exists...");
+        if (organizationsList.isEmpty()) {
+            throw new ResourceNotFoundException("No Organizations Exist...");
         }
 
-        return organizationsList;
-    }
-
-    @Override
-    public Organizations getOrganizationByOrganizationsId(String organizationsId) {
-        return organizationsRepository.findById(organizationsId).orElseThrow(
-                ()-> new ResourceNotFoundException("Organization not Found!!")
-        );
+        return organizationsList.stream()
+                .map(org -> new OrganizerDto(org.getOrganizationsId(), org.getOrganizationName()))
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -1,15 +1,14 @@
 package com.charan.mytaskly.services;
 
 import com.charan.mytaskly.dto.IssuesDto;
-import com.charan.mytaskly.entities.Issues;
-import com.charan.mytaskly.entities.Projects;
-import com.charan.mytaskly.entities.Sprints;
-import com.charan.mytaskly.entities.Users;
+import com.charan.mytaskly.entities.*;
+import com.charan.mytaskly.exception.InvalidInputException;
 import com.charan.mytaskly.exception.ResourceNotFoundException;
 import com.charan.mytaskly.repository.IssuesRepository;
 import com.charan.mytaskly.repository.ProjectsRepository;
 import com.charan.mytaskly.repository.SprintsRepository;
 import com.charan.mytaskly.repository.UsersRepository;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -83,7 +82,7 @@ public class IssuesServiceImpl implements IssuesService{
         issues.setSprints(sprints);
         issuesRepository.save(issues);
 
-        return "Sprint added successfully!!";
+        return "Issue added successfully!!";
     }
 
     @Override
@@ -125,5 +124,18 @@ public class IssuesServiceImpl implements IssuesService{
         issuesRepository.save(existingIssue);
 
         return "Issue Updated Successfully!!";
+    }
+
+    @Override
+    public String updateIssueStatusByIssueId(String issueId, String issueStatus) {
+        Issues issues = issuesRepository.findById(issueId).orElseThrow(()-> new ResourceNotFoundException("Issue Id not found"));
+        try {
+            issues.setIssueStatus(IssueStatus.valueOf(issueStatus));
+        } catch (IllegalArgumentException e) {
+            throw new InvalidInputException("Invalid issue status: " + issueStatus);
+        }
+
+        issuesRepository.save(issues);
+        return "IssuePriority updated successfully!!";
     }
 }

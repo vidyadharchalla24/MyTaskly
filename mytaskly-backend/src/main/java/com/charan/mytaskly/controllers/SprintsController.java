@@ -1,5 +1,6 @@
 package com.charan.mytaskly.controllers;
 
+import com.charan.mytaskly.dto.SprintsDto;
 import com.charan.mytaskly.entities.Sprints;
 import com.charan.mytaskly.exception.ResourceNotFoundException;
 import com.charan.mytaskly.services.SprintsService;
@@ -34,7 +35,7 @@ public class SprintsController {
     }
 
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<List<Sprints>> getAllSprintsByProjectId(@PathVariable("projectId") String projectId) {
+    public ResponseEntity<List<SprintsDto>> getAllSprintsByProjectId(@PathVariable("projectId") String projectId) {
         return ResponseEntity.ok(sprintsService.getAllSprintsByProjectId(projectId));
     }
 

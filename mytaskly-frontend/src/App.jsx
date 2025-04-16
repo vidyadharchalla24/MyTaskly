@@ -14,6 +14,7 @@ import  {SprintsPage}  from "./components/SprintsPage";
 import { useEffect } from "react";
 import { setAxiosInterceptors } from "./utils/api";
 import GanttChart from "./components/GanttChart";
+import CollaborationList from "./components/collaborators/CollaboratorList";
 
 
 
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/organization" element={<Organization/>}/>
             <Route path="/SprintsPage/:projectId" element={<SprintsPage/>}/>
             <Route path="/gantchart" element={<GanttChart />} />
+            <Route path="/collaborators/:projectId" element={<CollaborationList />} />
           </Route>
         </Route>
       </Routes>

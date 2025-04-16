@@ -22,6 +22,7 @@ public class Issues {
     private String description;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "issue_status", length = 20)
     private IssueStatus issueStatus;
 
     @Enumerated(EnumType.STRING)

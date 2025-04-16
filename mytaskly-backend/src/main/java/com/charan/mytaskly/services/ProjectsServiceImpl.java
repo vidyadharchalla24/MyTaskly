@@ -1,5 +1,6 @@
 package com.charan.mytaskly.services;
 
+import com.charan.mytaskly.dto.ProjectDto;
 import com.charan.mytaskly.entities.*;
 import com.charan.mytaskly.exception.ResourceNotFoundException;
 import com.charan.mytaskly.exception.SubscriptionExpiryException;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectsServiceImpl implements ProjectsService{
@@ -71,23 +73,6 @@ public class ProjectsServiceImpl implements ProjectsService{
     }
 
     @Override
-    public List<Projects> getAllProjects() {
-        List<Projects> projectsList = projectsRepository.findAll();
-        if (projectsList.isEmpty()){
-            throw new ResourceNotFoundException("No Projects Available!!");
-        }
-
-        return projectsList;
-    }
-
-    @Override
-    public Projects getProjectByProjectId(String projectId) {
-        return projectsRepository.findById(projectId).orElseThrow(
-                ()-> new ResourceNotFoundException("Project Not Found!!")
-        );
-    }
-
-    @Override
     public Projects updateProjectByProjectId(String projectId, Projects projects) {
         Projects existingProject = projectsRepository.findById(projectId).orElseThrow(
                 ()-> new ResourceNotFoundException("Project doesn't exist!!")
@@ -109,12 +94,22 @@ public class ProjectsServiceImpl implements ProjectsService{
     }
 
     @Override
-    public List<Projects> getProjectByOrganizationName(String organizationName) {
+    public List<ProjectDto> getProjectByOrganizationName(String organizationName) {
         List<Projects> projectsList = projectsRepository.getProjectByOrganizationName(organizationName);
+
         if (projectsList.isEmpty()) {
-            throw new ResourceNotFoundException("No Projects Available..");
+            throw new ResourceNotFoundException("No Projects Available...");
         }
-        return projectsList;
+
+        return projectsList.stream()
+                .map(project -> new ProjectDto(
+                        project.getProjectId(),
+                        project.getProjectName(),
+                        project.getProjectDescription(),
+                        project.getProjectStatus()
+                ))
+                .collect(Collectors.toList());
     }
+
 
 }

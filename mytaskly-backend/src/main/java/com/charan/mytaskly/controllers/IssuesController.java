@@ -44,6 +44,10 @@ public class IssuesController {
         return ResponseEntity.ok(issuesService.updateAllIssueDetailsByIssueId(issueId,issues));
     }
 
+    @PutMapping("/{issueId}/priority/{issueStatus}")
+    public ResponseEntity<String> updateIssuePriorityByIssueId(@PathVariable("issueId") String issueId,@PathVariable("issueStatus") String issueStatus){
+        return ResponseEntity.ok(issuesService.updateIssueStatusByIssueId(issueId,issueStatus));
+    }
 
 
 }
