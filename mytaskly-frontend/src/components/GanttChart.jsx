@@ -14,7 +14,7 @@ const columns = [
 
 const transformData = (jsonData) => {
   if (!jsonData) return []; // Handle undefined data gracefully
-  console.log(jsonData);
+  // console.log(jsonData);
   return jsonData.map((sprint) => [
     sprint.sprintId,
     sprint.sprintName,

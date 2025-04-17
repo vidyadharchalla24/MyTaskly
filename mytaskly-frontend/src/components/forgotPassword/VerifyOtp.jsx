@@ -73,7 +73,7 @@ const VerifyOtp = () => {
           params: { email },
         }
       );
-      console.log(response);
+      // console.log(response);
       toast.success(response?.data || "A new OTP has been sent to your email.");
     } catch (error) {
       toast.error(

@@ -18,7 +18,7 @@ import CreateIssue from "./Models/CreateIssue";
 import { ProjectsContext } from "../context/ProjectsContext";
 import api from "../utils/api";
 import { FiEdit, FiTrash2 } from "react-icons/fi"; // Import icons
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import IssueCard from "./issues/IssueCard";
 import { UserContext } from "../context/UserContext";
 
@@ -45,6 +45,8 @@ export const SprintsPage = () => {
   const [editSprintId, setEditSprintId] = useState("");
   const { setSprintsUpdates, sprintsUpdates } = useContext(ProjectsContext);
   const { userDetails } = useContext(UserContext);
+  const navigate = useNavigate();
+  const { projectId } = useParams();
 
   // Columns to store issues
   const [columns, setColumns] = useState({
@@ -63,7 +65,6 @@ export const SprintsPage = () => {
     })
   );
 
-  const { projectId } = useParams();
 
   useEffect(() => {
     if (projectId) {
@@ -76,7 +77,7 @@ export const SprintsPage = () => {
     try {
       const response = await api.get(`/api/v1/sprints/project/${projectId}`);
       const sprintsData = response?.data;
-      console.log(sprintsData);
+      // console.log(sprintsData);
       // Set all sprints
       setSprints(sprintsData);
 
@@ -115,21 +116,21 @@ export const SprintsPage = () => {
   const handleSubmitIssue = async (issueData) => {
     try {
       const sprintId = activeSprint?.sprintId;
-    console.log(issueData?.priority);
-    const response = await api.post(`/api/v1/issues/${sprintId}/sprint`, {
-      title: issueData?.title,
-      description: issueData?.description,
-      issuePriority: issueData?.priority,
-      assigneeEmail: issueData?.assignee,
-      reporterEmail: userDetails?.email,
-      issueStatus: "TO_DO",
-      projectId: projectId,
-    });
+      // console.log(issueData?.priority);
+      const response = await api.post(`/api/v1/issues/${sprintId}/sprint`, {
+        title: issueData?.title,
+        description: issueData?.description,
+        issuePriority: issueData?.priority,
+        assigneeEmail: issueData?.assignee,
+        reporterEmail: userDetails?.email,
+        issueStatus: "TO_DO",
+        projectId: projectId,
+      });
 
-    console.log(response);
-    setSprintsUpdates(true);
+      // console.log(response);
+      setSprintsUpdates(true);
 
-    setIsModalOpen(false);
+      setIsModalOpen(false);
     } catch (error) {
       console.log(error.response?.data?.message);
     }
@@ -145,7 +146,7 @@ export const SprintsPage = () => {
           endDate,
           sprintStatus: SprintStatus.NOT_STARTED,
         });
-        console.log(response?.data);
+        // console.log(response?.data);
         setSprintsUpdates(true);
         if (!activeSprint) {
           setActiveSprint(response?.data);
@@ -165,7 +166,7 @@ export const SprintsPage = () => {
 
   const handleEditSprint = async () => {
     try {
-      console.log(sprintName, startDate, endDate);
+      // console.log(sprintName, startDate, endDate);
       const response = await api.put(`/api/v1/sprints/${editSprintId}`, {
         sprintName,
         startDate,
@@ -209,7 +210,7 @@ export const SprintsPage = () => {
           params: { sprintStatus: "ACTIVE" },
         }
       );
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.log(error.response?.data?.message || error.message);
     }
@@ -241,7 +242,7 @@ export const SprintsPage = () => {
           params: { sprintStatus: "COMPLETED" },
         }
       );
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.log(error.response?.data?.message || error.message);
     }
@@ -273,7 +274,7 @@ export const SprintsPage = () => {
           params: { sprintStatus: "CANCELLED" },
         }
       );
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.log(error.response?.data?.message || error.message);
     }
@@ -286,7 +287,7 @@ export const SprintsPage = () => {
   const handleDeleteSprint = async (sprintId) => {
     try {
       const response = await api.delete(`/api/v1/sprints/${sprintId}`);
-      console.log(response?.data);
+      // console.log(response?.data);
       setSprints((prevSprint) =>
         prevSprint.filter((sprint) => sprint.sprintId !== sprintId)
       );
@@ -331,13 +332,15 @@ export const SprintsPage = () => {
     // Find the issue being dragged
     const columnId = findColumnOfIssue(active?.id);
     if (columnId) {
-      const issue = columns[columnId].find((item) => item.issueId === active?.id);
+      const issue = columns[columnId].find(
+        (item) => item.issueId === active?.id
+      );
       setActiveIssue(issue);
     }
   };
 
   // Handle drag end
-  const handleDragEnd =async (event) => {
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
 
     if (!over) {
@@ -386,8 +389,10 @@ export const SprintsPage = () => {
       });
 
       try {
-        const response = await api.put(`/api/v1/issues/${active?.id}/priority/${targetColumnId}`);
-        console.log(response);
+        const response = await api.put(
+          `/api/v1/issues/${active?.id}/priority/${targetColumnId}`
+        );
+        // console.log(response);
       } catch (error) {
         console.log(error);
       }
@@ -639,7 +644,9 @@ export const SprintsPage = () => {
 
       <div
         className={`mt-6 bg-[#23486A] font-[Poppins]  p-6 rounded-lg shadow-md w-full ${
-          isSprintEdited || (activeSprint?.sprintStatus === "COMPLETED")&& "pointer-events-none opacity-50"
+          isSprintEdited ||
+          (activeSprint?.sprintStatus === "COMPLETED" &&
+            "pointer-events-none opacity-50")
         }`}
       >
         <h2 className="text-xl font-bold mb-4 text-white">Issues</h2>
@@ -687,6 +694,7 @@ export const SprintsPage = () => {
                     !issue.sprintId || issue.sprintId === activeSprint?.sprintId
                 )}
                 setIsModalOpen={setIsModalOpen}
+                projectId={projectId}
                 isCreateEnabled={
                   !!activeSprint &&
                   activeSprint.sprintStatus === SprintStatus.ACTIVE
@@ -705,6 +713,7 @@ export const SprintsPage = () => {
 
       {/* Issue Creation Modal */}
       <CreateIssue
+        projectId={projectId}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitIssue}
@@ -718,7 +727,8 @@ const DroppableColumn = ({
   title,
   issues,
   setIsModalOpen,
-  isCreateEnabled = true
+  projectId,
+  isCreateEnabled = true,
 }) => {
   const { isOver, setNodeRef } = useSortable({
     id,
@@ -756,6 +766,7 @@ const DroppableColumn = ({
             key={issue?.issueId}
             issue={issue}
             setIsModalOpen={setIsModalOpen}
+            projectId={projectId}
           />
         ))}
       </div>
@@ -763,7 +774,7 @@ const DroppableColumn = ({
   );
 };
 
-const DraggableIssue = ({ issue, setIsModalOpen }) => {
+const DraggableIssue = ({ issue, setIsModalOpen,projectId }) => {
   const {
     attributes,
     listeners,
@@ -788,6 +799,23 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
   const toggleCommentBox = () => {
     setShowCommentBox((prev) => !prev);
   };
+  const navigate = useNavigate();
+  const { setSprintsUpdates } = useContext(ProjectsContext);
+
+  const handleDeleteIssue = async (issueId) => {
+    try {
+      const response = await api.delete(`/api/v1/issues/delete/${issueId}`);
+      // console.log(response?.data);
+      setSprintsUpdates(true);
+    } catch (error) {
+      console.error("Failed to delete issue", error);
+    }
+  };
+  
+  const handleEditIssue=(url)=>{
+    navigate(`${url}`);
+  }
+
 
   return (
     <div
@@ -798,20 +826,27 @@ const DraggableIssue = ({ issue, setIsModalOpen }) => {
       className="bg-white p-4 rounded-lg shadow-md cursor-pointer"
     >
       <h4 className="font-semibold">{issue.title}</h4>
-      <p className="text-gray-600">Assigned to: {issue.reporter?.email}</p>
-      <p className="text-gray-500 text-sm">{issue.description}</p>
+      <p className="text-gray-500 text-sm break-words whitespace-normal">
+        {issue.description}
+      </p>
       <p className="text-gray-500 text-sm">{issue.issuePriority}</p>
+      <p className="text-orange-600 break-words whitespace-normal">
+        {issue.reporterEmail}
+      </p>
 
       <div className="flex justify-center">
         {/* Edit and Delete icons */}
         <button
           className="p-2 rounded-full transition text-blue-500 hover:bg-blue-100"
           title="Edit Sprint"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => handleEditIssue(`/editIssue/${issue.issueId}/${projectId}`)}
         >
           <FiEdit size={20} />
         </button>
-        <button className="text-red-500 hover:bg-red-100" title="Delete Sprint">
+        <button 
+        className="text-red-500 hover:bg-red-100" title="Delete Sprint"
+        onClick={()=> handleDeleteIssue(issue.issueId)}
+        >
           <FiTrash2 size={20} />
         </button>
       </div>

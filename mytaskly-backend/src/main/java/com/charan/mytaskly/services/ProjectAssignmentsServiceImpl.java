@@ -1,6 +1,7 @@
 package com.charan.mytaskly.services;
 
 import com.charan.mytaskly.dto.UsersDto;
+import com.charan.mytaskly.entities.ProjectAssignments;
 import com.charan.mytaskly.entities.Role;
 import com.charan.mytaskly.entities.Users;
 import com.charan.mytaskly.repository.ProjectAssignmentsRepository;
@@ -23,10 +24,17 @@ public class ProjectAssignmentsServiceImpl implements ProjectAssignmentsService{
         List<Users> developers = projectAssignmentsRepository.getUsersByProjectIdAndRole(projectId, Role.DEV);
 
         return developers.stream().map(user -> new UsersDto(
+                user.getEmail(),
                 user.getUserId(),
                 user.getName(),
-                user.getEmail(),
                 user.getImageUrl()
         )).collect(Collectors.toList());
+    }
+
+    @Override
+    public String deleteCollaboratorByProjectIdAndUserId(String projectId, String userId) {
+        ProjectAssignments projectAssignments = projectAssignmentsRepository.getProjectAssignmentsByProjectIdUserId(projectId,userId);
+        projectAssignmentsRepository.delete(projectAssignments);
+        return "Collaborator deleted successfully!!";
     }
 }

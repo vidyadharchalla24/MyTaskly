@@ -257,7 +257,6 @@ public class UsersServiceImpl implements UsersService{
 
     @Override
     public List<String> getAllUsersExceptUserIdMatch(String email) {
-        System.out.println("---------------------------"+email);
         return usersRepository.getAllUsersExceptUserIdMatch(email);
     }
 

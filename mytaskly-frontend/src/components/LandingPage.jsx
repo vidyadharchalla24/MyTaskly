@@ -19,7 +19,7 @@ const LandingPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
+    // console.log("Form Submitted:", formData);
     alert("Your Feedback is submitted");
     setFormData({ name: "", email: "", message: "" });
   };

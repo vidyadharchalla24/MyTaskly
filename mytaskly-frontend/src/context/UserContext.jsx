@@ -38,7 +38,7 @@ export const UserProvider = ({ children }) => {
   }
 
   const logout = () =>{
-    console.log("logout encountered");
+    // console.log("logout encountered");
     setUserDetails(null);
     setIsAuthenticated(false);
     localStorage.removeItem("token");

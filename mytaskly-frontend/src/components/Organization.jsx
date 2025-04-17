@@ -50,10 +50,10 @@ const Organization = () => {
   };
 
   const handleEdit = (projectId) => {
-    console.log("Edit clicked for project ID:", projectId);
+    // console.log("Edit clicked for project ID:", projectId);
     // Find the project to edit
     const project = data.find((project) => project.projectId === projectId);
-    console.log("Found project:", project);
+    // console.log("Found project:", project);
     if (project) {
       setProjectToEdit(project);
       setShowEditModal(true);

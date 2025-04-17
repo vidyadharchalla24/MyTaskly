@@ -44,7 +44,7 @@ const ForgotPassword = () => {
           params: { email },
         }
       );
-      console.log(response.data);
+      // console.log(response.data);
       toast.success(response?.data || "Otp sent successfully to email");
       navigate("/verify-otp", { state: { email } });
     } catch (error) {

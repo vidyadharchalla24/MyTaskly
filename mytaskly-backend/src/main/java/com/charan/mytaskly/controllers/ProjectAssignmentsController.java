@@ -3,10 +3,7 @@ package com.charan.mytaskly.controllers;
 import com.charan.mytaskly.dto.UsersDto;
 import com.charan.mytaskly.services.ProjectAssignmentsService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,6 +20,11 @@ public class ProjectAssignmentsController {
     @GetMapping("/{projectId}/collaborators")
     public ResponseEntity<List<UsersDto>> getAllCollaboratorsByProjectId(@PathVariable String projectId){
         return ResponseEntity.ok(projectAssignmentsService.getAllCollaboratorsByProjectId(projectId));
+    }
+
+    @DeleteMapping("/{projectId}/collaborators/{userId}")
+    public ResponseEntity<String> deleteCollaboratorByProjectIdAndUserId(@PathVariable("projectId") String projectId,@PathVariable("userId") String userId){
+        return ResponseEntity.ok(projectAssignmentsService.deleteCollaboratorByProjectIdAndUserId(projectId,userId));
     }
 
 }

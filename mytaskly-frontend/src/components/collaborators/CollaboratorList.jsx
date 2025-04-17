@@ -30,11 +30,13 @@ export default function CollaborationList() {
   const { projectId } = useParams();
   const userEmail = userDetails?.email;
   const navigate = useNavigate();
+  const [isUpdated,setIsUpdated] = useState(false);
 
   // Fetch all users and collaborators on mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setIsUpdated(false);
       try {
         const [userResponse, collabResponse] = await Promise.all([
           api.get(`/api/v1/users/all-users/${userEmail}`),
@@ -42,12 +44,11 @@ export default function CollaborationList() {
         ]);        
         setAllUsers(userResponse?.data || []);
         setCollaborators(collabResponse?.data || []);
-        
         // Initialize filtered users for display when dropdown opens
         const initialFiltered = (userResponse?.data || [])
           .filter(user => !(collabResponse?.data || []).some(c => c?.userId === user?.userId))
           .slice(0, 3);
-          console.log(initialFiltered);
+          // console.log(initialFiltered);
         setFilteredUsers(initialFiltered);
       } catch (error) {
         console.error("Error fetching data", error);
@@ -57,7 +58,7 @@ export default function CollaborationList() {
     };
 
     fetchData();
-  }, [userEmail, projectId]);
+  }, [userEmail, projectId,isUpdated]);
 
   // Filter users when search term changes or dropdown is opened
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function CollaborationList() {
     try {
       setIsLoading(true);
       const response = await api.post(`/api/v1/invitations/send/${email}/${projectId}`);
-      console.log(response);
+      // console.log(response);
       setNotification(`Invitation sent to ${email}.`);
       setShowDropdown(false);
       setSearchTerm("");
@@ -101,7 +102,8 @@ export default function CollaborationList() {
       await api.delete(`/api/v1/projects-assignments/${projectId}/collaborators/${userId}`);
       setCollaborators((prev) => prev.filter((c) => c.userId !== userId));
       setNotification("Collaborator removed successfully.");
-      setTimeout(() => setNotification(""), 4000);
+      setTimeout(() => setNotification(""), 2000);
+      setIsUpdated(true);
     } catch (error) {
       console.error("Error removing collaborator", error);
       setNotification("Failed to remove collaborator.");
@@ -187,7 +189,7 @@ export default function CollaborationList() {
           {collaborators.length > 0 ? (
             collaborators.map((collab) => (
               <div
-                key={collab.userId || `collab-${collab.email}`}
+                key={collab.password || `collab-${collab.email}`}
                 className="flex items-center justify-between border p-3 rounded-md bg-gray-100"
               >
                 <div className="flex items-center gap-3">
@@ -198,7 +200,7 @@ export default function CollaborationList() {
                   </div>
                 </div>
                 <button
-                  onClick={() => removeCollaborator(collab.userId)}
+                  onClick={() => removeCollaborator(collab.password)}
                   className="text-red-500 hover:text-red-700"
                   aria-label="Remove collaborator"
                 >

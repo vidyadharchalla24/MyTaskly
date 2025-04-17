@@ -86,11 +86,35 @@ public class IssuesServiceImpl implements IssuesService{
     }
 
     @Override
-    public Issues getIssueByIssueId(String issueId) {
-        return issuesRepository.findById(issueId).orElseThrow(
-                ()-> new ResourceNotFoundException("Issue Not Found!!")
-        );
+    public IssuesDto getIssueByIssueId(String issueId) {
+        Issues issue = issuesRepository.findById(issueId)
+                .orElseThrow(() -> new ResourceNotFoundException("Issue Not Found!!"));
+
+        IssuesDto dto = new IssuesDto();
+        dto.setIssueId(issue.getIssueId());
+        dto.setTitle(issue.getTitle());
+        dto.setDescription(issue.getDescription());
+        dto.setIssueStatus(issue.getIssueStatus());
+        dto.setIssuePriority(issue.getIssuePriority());
+
+        // Assuming Users entity has getEmail() method
+        if (issue.getAssignee() != null) {
+            dto.setAssigneeEmail(issue.getAssignee().getEmail());
+        }
+        if (issue.getReporter() != null) {
+            dto.setReporterEmail(issue.getReporter().getEmail());
+        }
+
+        if (issue.getProjects() != null) {
+            dto.setProjectId(issue.getProjects().getProjectId());
+        }
+        if (issue.getSprints() != null) {
+            dto.setSprintId(issue.getSprints().getSprintId());
+        }
+
+        return dto;
     }
+
 
     @Override
     public List<Issues> getAllIssuesBySprintId(String sprintId) {
@@ -111,16 +135,17 @@ public class IssuesServiceImpl implements IssuesService{
     }
 
     @Override
-    public String updateAllIssueDetailsByIssueId(String issueId, Issues issues) {
+    public String updateAllIssueDetailsByIssueId(String issueId, IssuesDto issuesDto) {
         Issues existingIssue = issuesRepository.findById(issueId).orElseThrow(
                 ()-> new ResourceNotFoundException("Issue Not Found!!")
         );
-        existingIssue.setIssuePriority(issues.getIssuePriority());
-        existingIssue.setIssueStatus(issues.getIssueStatus());
-        existingIssue.setTitle(issues.getTitle());
-        existingIssue.setDescription(issues.getDescription());
-        existingIssue.setAssignee(issues.getAssignee());
-        existingIssue.setReporter(issues.getReporter());
+        Users user = usersRepository.findByEmail(issuesDto.getAssigneeEmail()).orElseThrow(
+                ()-> new ResourceNotFoundException("Email Not Found!!")
+        );
+        existingIssue.setIssuePriority(issuesDto.getIssuePriority());
+        existingIssue.setTitle(issuesDto.getTitle());
+        existingIssue.setDescription(issuesDto.getDescription());
+        existingIssue.setAssignee(user);
         issuesRepository.save(existingIssue);
 
         return "Issue Updated Successfully!!";
@@ -137,5 +162,14 @@ public class IssuesServiceImpl implements IssuesService{
 
         issuesRepository.save(issues);
         return "IssuePriority updated successfully!!";
+    }
+
+    @Override
+    public String deleteIssueByIssueId(String issueId) {
+        Issues issues = issuesRepository.findById(issueId).orElseThrow(
+                ()-> new ResourceNotFoundException("Issue Not Found!!")
+        );
+        issuesRepository.delete(issues);
+        return "Issue deleted successfully!!";
     }
 }
