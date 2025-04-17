@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 
 const Dashboard = () => {
-  const { userDetails,isOrganizationUpdated } = useContext(UserContext);
+  const { userDetails,isOrganizationUpdated,setIsOrganizationUpdated } = useContext(UserContext);
   const [data, setData] = useState([]);
   const name = userDetails?.name;
+  const userId = userDetails?.user_id;
   const navigate = useNavigate();
 
   const handleClick = (org) => {
@@ -22,12 +23,18 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    api
-      .get("/api/v1/organizations")
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((err) => console.log("Error fetching organizations:", err));
+    const fetchOrganizationData = async()=>{
+      setIsOrganizationUpdated(false);
+      try {
+        const response = await api.get(`/api/v1/organizations/user/allOrganizations/${userId}`);
+        console.log(response?.data);
+        setData(response?.data);
+      } catch (error) {
+        console.log("error fetching data", error);
+      }
+    }
+
+    fetchOrganizationData();
   }, [isOrganizationUpdated]);
 
   return (

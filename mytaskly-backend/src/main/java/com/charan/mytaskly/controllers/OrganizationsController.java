@@ -29,8 +29,8 @@ public class OrganizationsController {
         return ResponseEntity.ok(organizationsService.getAllOrganizations());
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Organizations>> getOrganizationByUserId(@PathVariable String userId){
+    @GetMapping("/user/allOrganizations/{userId}")
+    public ResponseEntity<List<OrganizerDto>> getOrganizationByUserId(@PathVariable String userId){
         return ResponseEntity.ok(organizationsService.getOrganizationByUserId(userId));
     }
 

@@ -34,4 +34,6 @@ public interface UsersService {
     String deleteUserByUserId(String userId);
 
     List<Users> getAllUsers();
+
+    List<String> getAllUsersExceptUserIdMatch(String email);
 }

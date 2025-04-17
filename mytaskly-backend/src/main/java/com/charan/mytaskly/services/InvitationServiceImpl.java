@@ -1,14 +1,12 @@
 package com.charan.mytaskly.services;
 
 import com.charan.mytaskly.emailconfigurations.EmailUtils;
-import com.charan.mytaskly.entities.Invitation;
-import com.charan.mytaskly.entities.ProjectAssignments;
-import com.charan.mytaskly.entities.Projects;
-import com.charan.mytaskly.entities.Role;
+import com.charan.mytaskly.entities.*;
 import com.charan.mytaskly.exception.ResourceNotFoundException;
 import com.charan.mytaskly.repository.InvitationRepository;
 import com.charan.mytaskly.repository.ProjectAssignmentsRepository;
 import com.charan.mytaskly.repository.ProjectsRepository;
+import com.charan.mytaskly.repository.UsersRepository;
 import jakarta.mail.MessagingException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -29,12 +27,15 @@ public class InvitationServiceImpl implements InvitationService {
 
     private final Environment environment;
 
-    public InvitationServiceImpl(InvitationRepository invitationRepository, ProjectsRepository projectsRepository, ProjectAssignmentsRepository projectAssignmentsRepository, EmailUtils emailUtils, Environment environment) {
+    private final UsersRepository usersRepository;
+
+    public InvitationServiceImpl(InvitationRepository invitationRepository, ProjectsRepository projectsRepository, ProjectAssignmentsRepository projectAssignmentsRepository, EmailUtils emailUtils, Environment environment, UsersRepository usersRepository) {
         this.invitationRepository = invitationRepository;
         this.projectsRepository = projectsRepository;
         this.projectAssignmentsRepository = projectAssignmentsRepository;
         this.emailUtils = emailUtils;
         this.environment = environment;
+        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -57,7 +58,7 @@ public class InvitationServiceImpl implements InvitationService {
 
         invitationRepository.save(invitation);
 
-        String link = environment.getProperty("FRONTEND_URL")+"/invite-response?token=" + token;
+        String link = environment.getProperty("FRONTEND_URL") + "/invite-response?token=" + token;
         String content = "<html>" +
                 "<body>" +
                 "<p>Hello,</p>" +
@@ -71,8 +72,8 @@ public class InvitationServiceImpl implements InvitationService {
                 "<p>If you did not expect this email, you can ignore it.</p>" +
                 "</body>" +
                 "</html>";
-        String subject = "Collaboration Invitation for Project "+project.getProjectName()+" from "+ project.getOrganization().getOrganizationName()+".";
-        emailUtils.sendEmail(email,subject,content);
+        String subject = "Collaboration Invitation for Project " + project.getProjectName() + " from " + project.getOrganization().getOrganizationName() + ".";
+        emailUtils.sendEmail(email, subject, content);
 
     }
 
@@ -80,27 +81,44 @@ public class InvitationServiceImpl implements InvitationService {
     public String respondToInvitation(String token, boolean response) {
         Invitation invitation = invitationRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
+
         if (invitation.getExpiresAt().isBefore(LocalDateTime.now())) {
             return "Invitation expired.";
         }
 
+        // Check if already responded - return the same message as before to be idempotent
         if (invitation.isResponded()) {
-            return "Invitation already responded.";
+            return response ? "Invitation accepted." : "Invitation rejected.";
         }
 
+        // Update invitation status first
         invitation.setAccepted(response);
         invitation.setResponded(true);
         invitationRepository.save(invitation);
-        if(response){
-            ProjectAssignments projectAssignments = new ProjectAssignments();
-            projectAssignments.setRole(Role.DEV);
-            projectAssignments.setProjects(invitation.getProject());
-            projectAssignments.setUsers(null);
-            projectAssignments.setProjectAssignmentsId(UUID.randomUUID().toString());
-            projectAssignmentsRepository.save(projectAssignments);
+
+        Users users = usersRepository.findByEmail(invitation.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (response) {
+            // Use transaction to ensure consistency
+            boolean alreadyAssigned = projectAssignmentsRepository.existsByUsersAndProjects(
+                    users, invitation.getProject()
+            );
+
+            if (!alreadyAssigned) {
+                ProjectAssignments projectAssignments = new ProjectAssignments();
+                projectAssignments.setRole(Role.DEV);
+                projectAssignments.setProjects(invitation.getProject());
+                projectAssignments.setUsers(users);
+                projectAssignments.setProjectAssignmentsId(UUID.randomUUID().toString());
+
+                projectAssignmentsRepository.save(projectAssignments);
+            }
+
             return "Invitation accepted.";
         }
 
         return "Invitation rejected.";
     }
+
 }

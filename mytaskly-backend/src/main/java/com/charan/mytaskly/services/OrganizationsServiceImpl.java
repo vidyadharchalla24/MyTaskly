@@ -112,9 +112,18 @@ public class OrganizationsServiceImpl implements OrganizationsService{
     }
 
     @Override
-    public List<Organizations> getOrganizationByUserId(String userId) {
+    public List<OrganizerDto> getOrganizationByUserId(String userId) {
         List<Organizations> organizationsList = organizationsRepository.getOrganizationByUserId(userId);
-        return List.of();
+
+        // Convert to DTOs and return
+        return organizationsList.stream()
+                .map(org -> new OrganizerDto(
+                        org.getOrganizationsId(),
+                        org.getOrganizationName()
+                ))
+                .collect(Collectors.toList());
     }
+
+
 
 }

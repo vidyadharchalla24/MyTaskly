@@ -3,10 +3,7 @@ package com.charan.mytaskly.controllers;
 import com.charan.mytaskly.services.InvitationService;
 import jakarta.mail.MessagingException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/invitations")
@@ -18,8 +15,8 @@ public class InvitationController {
         this.invitationService = invitationService;
     }
 
-    @PostMapping("/send")
-    public ResponseEntity<String> sendInvitation(@RequestParam String email, @RequestParam String projectId) throws MessagingException {
+    @PostMapping("/send/{email}/{projectId}")
+    public ResponseEntity<String> sendInvitation(@PathVariable("email") String email, @PathVariable("projectId") String projectId) throws MessagingException {
         invitationService.sendInvitation(email, projectId);
         return ResponseEntity.ok("Invitation sent successfully");
     }

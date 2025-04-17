@@ -255,6 +255,12 @@ public class UsersServiceImpl implements UsersService{
         return usersList;
     }
 
+    @Override
+    public List<String> getAllUsersExceptUserIdMatch(String email) {
+        System.out.println("---------------------------"+email);
+        return usersRepository.getAllUsersExceptUserIdMatch(email);
+    }
+
     /**
      * Helper function which gives and OTP Email Template
      * @param otp

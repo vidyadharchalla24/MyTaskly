@@ -60,4 +60,9 @@ public class UsersController {
         return ResponseEntity.ok(usersService.deleteUserByUserId(userId));
     }
 
+    @GetMapping("all-users/{email}")
+    public ResponseEntity<List<String>> getAllUsersExceptUserIdMatch(@PathVariable String email){
+        return ResponseEntity.ok(usersService.getAllUsersExceptUserIdMatch(email));
+    }
+
 }

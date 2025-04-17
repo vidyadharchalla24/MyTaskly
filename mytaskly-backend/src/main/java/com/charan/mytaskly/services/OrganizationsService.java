@@ -17,5 +17,5 @@ public interface OrganizationsService {
 
     List<Projects> getAllProjectByOrganizationId(String organizationsId);
 
-    List<Organizations> getOrganizationByUserId(String userId);
+    List<OrganizerDto> getOrganizationByUserId(String userId);
 }

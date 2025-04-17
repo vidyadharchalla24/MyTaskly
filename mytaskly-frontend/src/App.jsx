@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { setAxiosInterceptors } from "./utils/api";
 import GanttChart from "./components/GanttChart";
 import CollaborationList from "./components/collaborators/CollaboratorList";
+import InviteResponsePage from "./components/sharePages/InviteResponsePage";
 
 
 
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/SprintsPage/:projectId" element={<SprintsPage/>}/>
             <Route path="/gantchart" element={<GanttChart />} />
             <Route path="/collaborators/:projectId" element={<CollaborationList />} />
+            <Route path="/invite-response" element={<InviteResponsePage/>}/>
           </Route>
         </Route>
       </Routes>
