@@ -28,10 +28,13 @@ export const UserProvider = ({ children }) => {
     setUserDetails(decodedUserData);
   };
 
-  const login = (token) =>{
+  const login = (data) =>{
     try{
+      console.log(data);
+      const {token,status} = data;
         decodedUser(token);
         localStorage.setItem("token", token);
+        localStorage.setItem("status",status);
     }catch(err){
         console.error("Invalid token", err);
     }

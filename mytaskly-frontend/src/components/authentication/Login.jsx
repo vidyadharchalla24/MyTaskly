@@ -44,8 +44,8 @@ const Login = () => {
     try {
       const response = await api.post("/api/v1/login", formData);
     
-      if (response.data?.token) {
-        login(response.data.token);
+      if (response.data) {
+        login(response.data);
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {

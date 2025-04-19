@@ -78,6 +78,7 @@ export const pricingPlans = [
     {
       id: 1,
       title: "Basic",
+      value: "SUB_FREE",
       price: "Free",
       description: "For individuals",
       features: [
@@ -90,7 +91,8 @@ export const pricingPlans = [
     {
       id: 2,
       title: "Pro",
-      price: "$9.99",
+      value: "SUB_PRO",
+      price: "9.99",
       description: "Per User/Month",
       features: [
         "Everything in Basic",
@@ -102,7 +104,8 @@ export const pricingPlans = [
     {
       id: 3,
       title: "Advanced",
-      price: "$14.99",
+      value: "SUB_ADVANCED",
+      price: "19.99",
       description: "Per User/Month",
       features: [
         "Everything in Pro",

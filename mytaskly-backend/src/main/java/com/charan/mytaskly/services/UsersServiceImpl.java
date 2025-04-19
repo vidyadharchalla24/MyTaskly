@@ -9,6 +9,7 @@ import com.charan.mytaskly.repository.OneTimePasswordRepository;
 import com.charan.mytaskly.repository.SubscriptionPlanRepository;
 import com.charan.mytaskly.repository.SubscriptionsRepository;
 import com.charan.mytaskly.repository.UsersRepository;
+import com.charan.mytaskly.utils.CloudinaryUtilities;
 import jakarta.mail.MessagingException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,9 @@ public class UsersServiceImpl implements UsersService{
 
     private final EmailUtils emailUtils;
 
-    public UsersServiceImpl(SubscriptionsRepository subscriptionsRepository, SubscriptionPlanRepository subscriptionPlanRepository, UsersRepository usersRepository, ImageUploadCloudinary imageUploadCloudinary, PasswordEncoder passwordEncoder, OneTimePasswordRepository oneTimePasswordRepository, EmailUtils emailUtils) {
+    private final CloudinaryUtilities cloudinaryUtilities;
+
+    public UsersServiceImpl(SubscriptionsRepository subscriptionsRepository, SubscriptionPlanRepository subscriptionPlanRepository, UsersRepository usersRepository, ImageUploadCloudinary imageUploadCloudinary, PasswordEncoder passwordEncoder, OneTimePasswordRepository oneTimePasswordRepository, EmailUtils emailUtils, CloudinaryUtilities cloudinaryUtilities) {
         this.subscriptionsRepository = subscriptionsRepository;
         this.subscriptionPlanRepository = subscriptionPlanRepository;
         this.usersRepository = usersRepository;
@@ -50,6 +53,7 @@ public class UsersServiceImpl implements UsersService{
         this.passwordEncoder = passwordEncoder;
         this.oneTimePasswordRepository = oneTimePasswordRepository;
         this.emailUtils = emailUtils;
+        this.cloudinaryUtilities = cloudinaryUtilities;
     }
 
 
@@ -98,7 +102,7 @@ public class UsersServiceImpl implements UsersService{
 
             // If user already has an existing profile image, delete it from Cloudinary
             if (existingUser.getImageUrl() != null) {
-                deleteImageFromCloudinary(existingUser.getImageUrl());
+                cloudinaryUtilities.deleteImageFromCloudinary(existingUser.getImageUrl());
             }
 
             String imageUrl = imageUploadCloudinary.uploadImage(file);
@@ -122,7 +126,7 @@ public class UsersServiceImpl implements UsersService{
 
         }
         try{
-            deleteImageFromCloudinary(user.getImageUrl());
+            cloudinaryUtilities.deleteImageFromCloudinary(user.getImageUrl());
 
             // Set profile image URL to null in the database
             user.setImageUrl(null);
@@ -327,28 +331,5 @@ public class UsersServiceImpl implements UsersService{
      */
     private String generateOtp(){
         return String.valueOf(new Random().nextInt(900000) + 100000);
-    }
-
-    /**
-     * Helper method to extract public ID from Cloudinary URL and delete the image
-     */
-    private void deleteImageFromCloudinary(String imageUrl) throws IOException {
-        String publicId = extractPublicIdFromUrl(imageUrl);
-
-        if (publicId != null) {
-            String data = imageUploadCloudinary.deleteImage(publicId);
-        }
-    }
-
-    /**
-     * Extracts public ID from Cloudinary image URL
-     */
-    private String extractPublicIdFromUrl(String imageUrl) {
-        if (imageUrl == null || !imageUrl.contains("/")) {
-            return null;
-        }
-
-        String publicIdWithExtension = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-        return publicIdWithExtension.split("\\.")[0]; // Remove file extension
     }
 }

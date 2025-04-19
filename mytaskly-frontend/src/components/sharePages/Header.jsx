@@ -87,6 +87,12 @@ const Header = () => {
             >
               Dashboard
             </Link>
+            <Link
+              className="text-white text-1xl bg-[#6774ed] p-1 rounded-lg"
+              to="/upgrade-plan"
+            >
+              Plan Upgrade
+            </Link>
 
             {/* Show Create Organization button only on Dashboard */}
             {location.pathname === "/dashboard" && (

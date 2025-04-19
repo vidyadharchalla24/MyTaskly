@@ -4,7 +4,14 @@ import com.charan.mytaskly.config.JwtTokenHelper;
 import com.charan.mytaskly.dto.AuthRequest;
 import com.charan.mytaskly.dto.AuthResponse;
 import com.charan.mytaskly.dto.UsersDto;
+import com.charan.mytaskly.entities.ProjectStatus;
+import com.charan.mytaskly.entities.SubscriptionStatus;
+import com.charan.mytaskly.entities.Subscriptions;
+import com.charan.mytaskly.entities.Users;
 import com.charan.mytaskly.exception.ResourceNotFoundException;
+import com.charan.mytaskly.repository.ProjectAssignmentsRepository;
+import com.charan.mytaskly.repository.SubscriptionsRepository;
+import com.charan.mytaskly.repository.UsersRepository;
 import com.charan.mytaskly.services.UsersService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -29,11 +36,17 @@ public class AuthController {
 
     private final UsersService usersService;
 
-    public AuthController(UserDetailsService userDetailsService, JwtTokenHelper jwtTokenHelper, AuthenticationManager authenticationManager, UsersService usersService) {
+    private final UsersRepository usersRepository;
+
+    private final SubscriptionsRepository subscriptionsRepository;
+
+    public AuthController(UserDetailsService userDetailsService, JwtTokenHelper jwtTokenHelper, AuthenticationManager authenticationManager, UsersService usersService, UsersRepository usersRepository, SubscriptionsRepository subscriptionsRepository) {
         this.userDetailsService = userDetailsService;
         this.jwtTokenHelper = jwtTokenHelper;
         this.authenticationManager = authenticationManager;
         this.usersService = usersService;
+        this.usersRepository = usersRepository;
+        this.subscriptionsRepository = subscriptionsRepository;
     }
 
     @PostMapping("/login")
@@ -44,11 +57,18 @@ public class AuthController {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
             String token = jwtTokenHelper.generateToken(userDetails);
-            AuthResponse authResponse = new AuthResponse(token);
+
+            Users users = usersRepository.findByEmail(authRequest.getEmail()).orElseThrow(
+                    ()-> new ResourceNotFoundException("User Not Found")
+            );
+
+            Subscriptions subscriptions = subscriptionsRepository.getSubscriptionsByUserId(users.getUserId());
+            
+            AuthResponse authResponse = new AuthResponse(token,subscriptions.getStatus());
 
             return ResponseEntity.ok(authResponse);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Invalid email or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Invalid email or password", SubscriptionStatus.valueOf("")));
         }
     }
 

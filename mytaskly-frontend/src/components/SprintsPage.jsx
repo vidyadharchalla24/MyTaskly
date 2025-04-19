@@ -17,10 +17,14 @@ import { CSS } from "@dnd-kit/utilities";
 import CreateIssue from "./Models/CreateIssue";
 import { ProjectsContext } from "../context/ProjectsContext";
 import api from "../utils/api";
-import { FiEdit, FiTrash2 } from "react-icons/fi"; // Import icons
+import { FiEdit, FiEye, FiMessageCircle, FiTrash2 } from "react-icons/fi"; // Import icons
 import { useNavigate, useParams } from "react-router-dom";
 import IssueCard from "./issues/IssueCard";
 import { UserContext } from "../context/UserContext";
+import CommentModal from "./comments/CommentModal";
+import { userDetailsFromToken } from "../utils/userDetailsFromToken";
+import { toast } from "react-toastify";
+import ViewCommentsModal from "./comments/ViewCommentsModal";
 
 // Sprint status enum
 const SprintStatus = {
@@ -64,7 +68,6 @@ export const SprintsPage = () => {
       },
     })
   );
-
 
   useEffect(() => {
     if (projectId) {
@@ -774,7 +777,7 @@ const DroppableColumn = ({
   );
 };
 
-const DraggableIssue = ({ issue, setIsModalOpen,projectId }) => {
+const DraggableIssue = ({ issue, setIsModalOpen, projectId }) => {
   const {
     attributes,
     listeners,
@@ -795,114 +798,117 @@ const DraggableIssue = ({ issue, setIsModalOpen,projectId }) => {
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
-  const [showCommentBox, setShowCommentBox] = useState(false);
-  const toggleCommentBox = () => {
-    setShowCommentBox((prev) => !prev);
-  };
+
   const navigate = useNavigate();
   const { setSprintsUpdates } = useContext(ProjectsContext);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [isViewCommentsOpen, setIsViewCommentsOpen] = useState(false);
 
   const handleDeleteIssue = async (issueId) => {
     try {
-      const response = await api.delete(`/api/v1/issues/delete/${issueId}`);
-      // console.log(response?.data);
+      await api.delete(`/api/v1/issues/delete/${issueId}`);
       setSprintsUpdates(true);
     } catch (error) {
       console.error("Failed to delete issue", error);
     }
   };
-  
-  const handleEditIssue=(url)=>{
-    navigate(`${url}`);
-  }
 
+  const handleEditIssue = () => {
+    navigate(`/editIssue/${issue.issueId}/${projectId}`);
+  };
+
+  const handleCommentSubmit = async (commentText, file) => {
+    try {
+      const userId = await userDetailsFromToken()?.user_id;
+      const formData = new FormData();
+      formData.append("issueId", issue?.issueId);
+      formData.append("userId", userId);
+      formData.append("content", commentText);
+      if (file) formData.append("file", file);
+
+      const response = await api.post("/api/v1/comments/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast.success(response?.data);
+    } catch (error) {
+      console.error("Failed to submit comment", error);
+    }
+  };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="bg-white p-4 rounded-lg shadow-md cursor-pointer"
-    >
-      <h4 className="font-semibold">{issue.title}</h4>
-      <p className="text-gray-500 text-sm break-words whitespace-normal">
-        {issue.description}
-      </p>
-      <p className="text-gray-500 text-sm">{issue.issuePriority}</p>
-      <p className="text-orange-600 break-words whitespace-normal">
-        {issue.reporterEmail}
-      </p>
-
-      <div className="flex justify-center">
-        {/* Edit and Delete icons */}
-        <button
-          className="p-2 rounded-full transition text-blue-500 hover:bg-blue-100"
-          title="Edit Sprint"
-          onClick={() => handleEditIssue(`/editIssue/${issue.issueId}/${projectId}`)}
-        >
-          <FiEdit size={20} />
-        </button>
-        <button 
-        className="text-red-500 hover:bg-red-100" title="Delete Sprint"
-        onClick={()=> handleDeleteIssue(issue.issueId)}
-        >
-          <FiTrash2 size={20} />
-        </button>
-      </div>
-      {/* Button to show/hide comment section */}
-      <div className="flex justify-center">
-        <button
-          className="p-2 rounded-lg text-white bg-[#EFB036]"
-          onClick={toggleCommentBox}
-        >
-          {showCommentBox ? "Hide Comments" : "Add Your Comments"}
-        </button>
-      </div>
-
-      {/* Comment section (only shown when showCommentBox is true) */}
-      {showCommentBox && (
-        <div className="mt-3 w-full max-w-md">
-          <label
-            htmlFor="message"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Your message
-          </label>
-          <textarea
-            id="message"
-            rows="4"
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Write your comments here ..."
-          ></textarea>
-
-          <label
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            htmlFor="file_input"
-          >
-            Upload file
-          </label>
-          <input
-            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-            id="file_input"
-            type="file"
-          />
-
-          <div className="flex justify-between mt-3">
-            {/* Cancel button hides the comment section */}
-            <button
-              className="p-2 rounded-lg text-white font-[Poppins] bg-gray-500"
-              onClick={toggleCommentBox}
-            >
-              Cancel
-            </button>
-
-            <button className="p-2 rounded-lg text-white font-[Poppins] bg-[#EFB036]">
-              Submit
-            </button>
-          </div>
+    <>
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className="bg-white p-5 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition cursor-move"
+      >
+        <h4 className="text-lg font-semibold text-gray-800 mb-1 break-words whitespace-normal">
+          {issue.title}
+        </h4>
+        <p className="text-sm text-gray-600 mb-2 break-words whitespace-normal">
+          {issue.description}
+        </p>
+        <div className="text-xs text-gray-500 space-y-1 mb-3 break-words whitespace-normal">
+          <p>
+            <strong>Priority:</strong> {issue.issuePriority}
+          </p>
+          <p>
+            <strong>Reported by:</strong>{" "}
+            <span className="text-orange-500 break-words whitespace-normal">
+              {issue.assigneeEmail}
+            </span>
+          </p>
         </div>
-      )}
-    </div>
+
+        <div className="flex justify-between mb-4">
+          <button
+            className="p-2 rounded-full text-blue-600 hover:bg-blue-100 transition"
+            title="Edit Issue"
+            onClick={handleEditIssue}
+          >
+            <FiEdit size={18} />
+          </button>
+          <button
+            className="p-2 rounded-full text-red-600 hover:bg-red-100 transition"
+            title="Delete Issue"
+            onClick={() => handleDeleteIssue(issue.issueId)}
+          >
+            <FiTrash2 size={18} />
+          </button>
+          <button
+            onClick={() => setIsCommentModalOpen(true)}
+            className="px-3 py-2 text-sm font-medium flex items-center gap-1 rounded-md bg-[#EFB036] text-white hover:bg-[#dfa127] transition"
+            title="Add Comment"
+          >
+            <FiMessageCircle size={18} />
+          </button>
+          <button
+            onClick={() => setIsViewCommentsOpen(true)}
+            className="px-3 py-2 text-sm font-medium flex items-center gap-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
+            title="View Comments"
+          >
+            <FiEye size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Comment Modal Popup */}
+      <CommentModal
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        issue={issue}
+        onSubmit={handleCommentSubmit}
+      />
+      <ViewCommentsModal
+        isOpen={isViewCommentsOpen}
+        onClose={() => setIsViewCommentsOpen(false)}
+        issueId={issue.issueId}
+        issueTitle={issue?.title}
+      />
+    </>
   );
 };

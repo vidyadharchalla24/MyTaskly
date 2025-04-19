@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { images, aboutHighlights, features, pricingPlans, testimonials, contactInfo } from "../data";
+import { images, aboutHighlights, features, testimonials, contactInfo } from "../data";
+import PricingPlansSection from "./PricingPlansSection";
 
 const LandingPage = () => {
   const [formData, setFormData] = useState({
@@ -133,30 +134,7 @@ const LandingPage = () => {
       </section>
 
       <section id="pricing" className="py-16 bg-[#4C7B8B]">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white">Pricing Plans</h2>
-          <p className="text-white mt-2">
-            Choose a plan that fits your personal or team workflow needs.
-          </p>
-
-          <div className="mt-8 flex flex-col md:flex-row justify-center  gap-6">
-            {pricingPlans.map(({ id, title, price, description, features }) => (
-              <div key={id} className="bg-[#23486A] p-6 rounded-lg shadow-lg w-80">
-                <h3 className="text-xl font-semibold text-white">{title}</h3>
-                <p className="text-3xl font-bold text-white">{price}</p>
-                <p className="text-white">{description}</p>
-                <ul className="mt-4 text-white text-left space-y-2">
-                  {features.map((feature, index) => (
-                    <li key={index}>✔ {feature}</li>
-                  ))}
-                </ul>
-                <button className="mt-6 px-6 py-2 bg-[#EFB036] text-white rounded">
-                  Choose Plan
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+        <PricingPlansSection />
       </section>
 
       <section id="testimonials" className="py-16 bg-gray-50 text-[Poppins] min-h-[450px]">

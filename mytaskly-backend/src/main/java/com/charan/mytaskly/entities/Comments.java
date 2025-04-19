@@ -14,6 +14,8 @@ public class Comments {
     @Column(nullable = false)
     private String Content;
 
+    private String fileUrl;
+
     @ManyToOne
     @JoinColumn(name = "issue_id", nullable = false)
     @JsonBackReference
@@ -24,15 +26,16 @@ public class Comments {
     @JsonBackReference(value = "users-comments")
     private Users users;
 
-    public Comments() {
-        super();
-    }
-
-    public Comments(String commentId, String content, Issues issues, Users users) {
+    public Comments(String commentId, String content, String fileUrl, Issues issues, Users users) {
         this.commentId = commentId;
         Content = content;
+        this.fileUrl = fileUrl;
         this.issues = issues;
         this.users = users;
+    }
+
+    public Comments() {
+        super();
     }
 
     public String getCommentId() {
@@ -49,6 +52,14 @@ public class Comments {
 
     public void setContent(String content) {
         Content = content;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
     }
 
     public Issues getIssues() {

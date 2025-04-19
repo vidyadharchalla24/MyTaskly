@@ -50,10 +50,6 @@ public class Issues {
     @JsonManagedReference
     private List<Comments> comments;
 
-    @OneToMany(mappedBy = "issues", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference(value = "attachment-issues")
-    private List<Attachments> attachments;
-
     public Issues() {
         super();
     }
@@ -144,13 +140,5 @@ public class Issues {
 
     public void setComments(List<Comments> comments) {
         this.comments = comments;
-    }
-
-    public List<Attachments> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(List<Attachments> attachments) {
-        this.attachments = attachments;
     }
 }
