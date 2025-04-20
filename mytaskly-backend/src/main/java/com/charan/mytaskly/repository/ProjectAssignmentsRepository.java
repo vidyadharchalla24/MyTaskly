@@ -21,4 +21,7 @@ public interface ProjectAssignmentsRepository extends JpaRepository<ProjectAssig
 
     @Query("SELECT pa FROM ProjectAssignments pa WHERE pa.projects.projectId=:projectId AND pa.users.userId=:userId")
     ProjectAssignments getProjectAssignmentsByProjectIdUserId(@Param("projectId") String projectId,@Param("userId") String userId);
+
+    @Query("SELECT pa FROM ProjectAssignments pa WHERE pa.users.userId=:userId AND pa.role = :role")
+    List<ProjectAssignments> getAllProjectAssignmentsByUserIdAndRole(@Param("userId") String userId,@Param("role") Role role);
 }

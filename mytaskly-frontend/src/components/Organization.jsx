@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import api from "../utils/api";
 import { useLocation } from "react-router-dom";
-import { FaChartBar, FaEdit, FaTrash, FaUsers } from "react-icons/fa";
 import { OrganizationContext } from "../context/OrganizationContext";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import ProjectCard from "./ProjectCard";
+import { userDetailsFromToken } from "../utils/userDetailsFromToken";
 
 const Organization = () => {
   const [data, setData] = useState([]);
@@ -18,18 +19,24 @@ const Organization = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState("organization");
 
   const location = useLocation();
 
-  const goToSprintsPage = (projectId) => {
-    navigate(`/SprintsPage/${projectId}`);
-  };
-
   useEffect(() => {
     // Fixed the way organizationName is accessed and set
-    const orgName = location.state?.organizationName || "";
-    setOrganizationName(orgName);
-    fetchProjects(orgName);
+    const orgName = location.state?.organizationName;
+    const userId = userDetailsFromToken()?.user_id;
+    if(orgName){
+      setOrganizationName(orgName);
+      setViewMode("organization");
+      fetchProjectsByOrganizationName(orgName);
+    }else{
+      setViewMode("user");
+      if(userId){
+        fetchCollaborationsProjectsByUserId(userId);
+      }
+    }
     setIsProjectUpdated(false);
   }, [
     location.state,
@@ -38,16 +45,38 @@ const Organization = () => {
     setIsProjectUpdated,
   ]);
 
-  const fetchProjects = (orgName) => {
+  const fetchProjectsByOrganizationName = (orgName) => {
     if (!orgName) return;
 
     api
       .get(`/api/v1/projects/${orgName}/organizationName`)
       .then((response) => {
+        console.log(response.data);
         setData(response.data);
       })
       .catch((err) => console.log("Error fetching organizations:", err));
   };
+
+  const fetchCollaborationsProjectsByUserId = (userId) => {
+    if (!userId) return;
+
+    api
+      .get(`/api/v1/projects-assignments/user/${userId}`)
+      .then((response) => {
+        console.log(response.data);
+        setData(response.data);
+      })
+      .catch((err) => console.log("Error fetching organizations:", err));
+  };
+
+  const goToSprintsPage = (projectId,role) => {
+    navigate(`/SprintsPage/${projectId}/${role}`);
+  };
+
+  const isDevRole = (role) =>{
+    if(!role) return true;
+    return role==="DEV";
+  }
 
   const handleEdit = (projectId) => {
     // console.log("Edit clicked for project ID:", projectId);
@@ -86,7 +115,7 @@ const Organization = () => {
       // Hide success message after 3 seconds
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
-      console.error("Error deleting project:", error);
+      console.error("Error deleting project:", error.response);
     }
   };
 
@@ -114,7 +143,7 @@ const Organization = () => {
   return (
     <div className="p-6 font-[Poppins]">
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        Project Details
+      {viewMode === "organization" ? "My Projects" : "Collaboration Projects"}
       </h1>
 
       {successMessage && (
@@ -126,73 +155,18 @@ const Organization = () => {
       {data.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {data.map((project, index) => (
-            <div
-              key={project.projectId}
-              className={`p-6 rounded-lg shadow-lg text-white flex flex-col justify-between ${
-                index % 2 === 0 ? "bg-[#EFB036]" : "bg-[#23486A]"
-              }`}
-            >
-              <div>
-                <strong className="text-xl font-semibold mt-1">
-                  Project Name:
-                </strong>
-                <span className="text-1xl"> {project.projectName}</span>
-                <br />
-
-                <strong className="font-bold">Project Description:</strong>
-                <p className="mt-2">{project.projectDescription}</p>
-                <p className="mt-2 font-bold">
-                  Status: {project.projectStatus}
-                </p>
-              </div>
-
-              {/* Edit & Delete Buttons */}
-              <div className="flex justify-center mt-6 space-x-3">
-                <button
-                  onClick={() =>
-                    handleGantChartGenration(
-                      project.projectId,
-                      project.projectName
-                    )
-                  }
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#23486A] border border-gray-300 shadow-sm hover:bg-gray-100 transition"
-                  disabled={loading}
-                  title="Gantt Chart"
-                >
-                  <FaChartBar size={16} />
-                </button>
-
-                <button
-                  onClick={() => handleCollaborators(project.projectId)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#23486A] border border-gray-300 shadow-sm hover:bg-gray-100 transition"
-                  title="Collaborators"
-                >
-                  <FaUsers size={16} />
-                </button>
-
-                <button
-                  onClick={() => handleEdit(project.projectId)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#23486A] border border-gray-300 shadow-sm hover:bg-gray-100 transition"
-                  title="Edit Project"
-                >
-                  <FaEdit size={16} />
-                </button>
-
-                <button
-                  onClick={() => handleDeleteClick(project.projectId)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-red-600 border border-gray-300 shadow-sm hover:bg-gray-100 transition"
-                  title="Delete Project"
-                >
-                  <FaTrash size={16} />
-                </button>
-              </div>
-              <button
-                onClick={() => goToSprintsPage(project.projectId)}
-                className="leading-relaxed text-base mb-2 underline decoration-1"
-              >
-                Click Here To View SprintsPage
-              </button>
-            </div>
+            <ProjectCard
+            key={project.projectId}
+            project={project}
+            index={index}
+            onEdit={handleEdit}
+            onDeleteClick={handleDeleteClick}
+            onGanttChart={handleGantChartGenration}
+            onViewSprints={goToSprintsPage}
+            onCollaborators={handleCollaborators}
+            loading={loading}
+            role={isDevRole(project.role)}
+          />
           ))}
         </div>
       ) : (

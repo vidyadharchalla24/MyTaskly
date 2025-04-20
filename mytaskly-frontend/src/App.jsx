@@ -48,7 +48,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/organization" element={<Organization/>}/>
-            <Route path="/SprintsPage/:projectId" element={<SprintsPage/>}/>
+            <Route path="/SprintsPage/:projectId/:role" element={<SprintsPage/>}/>
             <Route path="/gantchart" element={<GanttChart />} />
             <Route path="/collaborators/:projectId" element={<CollaborationList />} />
             <Route path="/invite-response" element={<InviteResponsePage/>}/>

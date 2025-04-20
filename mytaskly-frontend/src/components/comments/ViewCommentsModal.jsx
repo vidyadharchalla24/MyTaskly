@@ -3,7 +3,13 @@ import { FiTrash2, FiX } from "react-icons/fi";
 import { toast } from "react-toastify";
 import api from "../../utils/api";
 
-const ViewCommentsModal = ({ isOpen, onClose, issueId,issueTitle }) => {
+const ViewCommentsModal = ({
+  isOpen,
+  onClose,
+  issueId,
+  issueTitle,
+  isRoleFalse,
+}) => {
   const [comments, setComments] = useState([]);
 
   const fetchComments = async () => {
@@ -75,12 +81,14 @@ const ViewCommentsModal = ({ isOpen, onClose, issueId,issueTitle }) => {
                     View Attachment
                   </a>
                 )}
-                <button
-                  onClick={() => handleDeleteComment(comment.commentId)}
-                  className="absolute top-3 right-3 text-red-500 hover:text-red-700"
-                >
-                  <FiTrash2 />
-                </button>
+                {isRoleFalse && (
+                  <button
+                    onClick={() => handleDeleteComment(comment.commentId)}
+                    className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+                  >
+                    <FiTrash2 />
+                  </button>
+                )}
               </li>
             ))}
           </ul>

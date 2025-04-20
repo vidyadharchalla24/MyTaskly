@@ -46,7 +46,10 @@ export default function InviteResponsePage() {
             response === "accept"
           }`
         );
-        
+        const accessRole = localStorage.getItem('accessRole');
+        if(!accessRole){
+          localStorage.setItem('accessRole',"DEV");
+        }
         setStatus(dataResponse.data || "Invitation processed successfully.");
         setTimeout(() => navigate('/dashboard'), 2000);
       } catch (error) {

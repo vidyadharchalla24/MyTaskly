@@ -2,12 +2,13 @@ import React, { useContext, useState, useEffect } from "react";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import { userDetailsFromToken } from "../utils/userDetailsFromToken";
 
 const Dashboard = () => {
   const { userDetails,isOrganizationUpdated,setIsOrganizationUpdated } = useContext(UserContext);
   const [data, setData] = useState([]);
   const name = userDetails?.name;
-  const userId = userDetails?.user_id;
+  const userId = userDetailsFromToken()?.user_id;
   const navigate = useNavigate();
 
   const handleClick = (org) => {

@@ -45,7 +45,7 @@ export const UserProvider = ({ children }) => {
     setUserDetails(null);
     setIsAuthenticated(false);
     localStorage.removeItem("token");
-    
+    localStorage.removeItem("status");    
   }
 
   return (

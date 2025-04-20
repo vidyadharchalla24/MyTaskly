@@ -50,7 +50,8 @@ export const SprintsPage = () => {
   const { setSprintsUpdates, sprintsUpdates } = useContext(ProjectsContext);
   const { userDetails } = useContext(UserContext);
   const navigate = useNavigate();
-  const { projectId } = useParams();
+  const { projectId, role } = useParams();
+  const isRoleFalse = role === "false";
 
   // Columns to store issues
   const [columns, setColumns] = useState({
@@ -72,6 +73,7 @@ export const SprintsPage = () => {
   useEffect(() => {
     if (projectId) {
       fetchSprints();
+      console.log(typeof isRoleFalse, isRoleFalse);
       setSprintsUpdates(false);
     }
   }, [projectId, sprintsUpdates]);
@@ -482,69 +484,71 @@ export const SprintsPage = () => {
 
   return (
     <div className="text-[Poppins] p-6">
-      <div className="bg-[#3B6790] p-6 rounded-lg shadow-md w-full relative text-white">
-        <h1 className="text-2xl font-bold mb-4">
-          {isSprintEdited ? "Edit" : "Create"} Sprint
-        </h1>
+      {isRoleFalse && (
+        <div className="bg-[#3B6790] p-6 rounded-lg shadow-md w-full relative text-white">
+          <h1 className="text-2xl font-bold mb-4">
+            {isSprintEdited ? "Edit" : "Create"} Sprint
+          </h1>
 
-        <div className="flex items-center text-white font[-Poppins] gap-4 mb-4">
-          <div className="w-1/3">
-            <label className="block  font-medium mb-1">Sprint Name</label>
-            <input
-              type="text"
-              value={sprintName}
-              onChange={(e) => setSprintName(e.target.value)}
-              className="w-full px-4 py-2 border text-black rounded-lg focus:ring focus:ring-blue-300 outline-none"
-              placeholder="Enter Sprint Name"
-            />
+          <div className="flex items-center text-white font[-Poppins] gap-4 mb-4">
+            <div className="w-1/3">
+              <label className="block  font-medium mb-1">Sprint Name</label>
+              <input
+                type="text"
+                value={sprintName}
+                onChange={(e) => setSprintName(e.target.value)}
+                className="w-full px-4 py-2 border text-black rounded-lg focus:ring focus:ring-blue-300 outline-none"
+                placeholder="Enter Sprint Name"
+              />
+            </div>
+            <div className="w-1/3">
+              <label className="block font-medium mb-1">Start Date</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-4 py-2 border text-black rounded-lg focus:ring focus:ring-blue-300 outline-none"
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+            <div className="w-1/3">
+              <label className="block  font-medium mb-1">End Date</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-4 py-2 border text-black rounded-lg focus:ring focus:ring-blue-300 outline-none"
+                min={startDate}
+              />
+            </div>
           </div>
-          <div className="w-1/3">
-            <label className="block font-medium mb-1">Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-4 py-2 border text-black rounded-lg focus:ring focus:ring-blue-300 outline-none"
-              min={new Date().toISOString().split("T")[0]}
-            />
-          </div>
-          <div className="w-1/3">
-            <label className="block  font-medium mb-1">End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-4 py-2 border text-black rounded-lg focus:ring focus:ring-blue-300 outline-none"
-              min={startDate}
-            />
+
+          <div className="flex justify-end">
+            {isSprintEdited ? (
+              <button
+                onClick={handleEditSprint}
+                className="bg-[#EFB036] text-white font-bold py-2 px-4 rounded-lg"
+              >
+                Update Sprint
+              </button>
+            ) : (
+              <button
+                onClick={handleCreateSprint}
+                className="bg-[#EFB036] text-white font-bold py-2 px-4 rounded-lg"
+              >
+                Create Sprint
+              </button>
+            )}
           </div>
         </div>
-
-        <div className="flex justify-end">
-          {isSprintEdited ? (
-            <button
-              onClick={handleEditSprint}
-              className="bg-[#EFB036] text-white font-bold py-2 px-4 rounded-lg"
-            >
-              Update Sprint
-            </button>
-          ) : (
-            <button
-              onClick={handleCreateSprint}
-              className="bg-[#EFB036] text-white font-bold py-2 px-4 rounded-lg"
-            >
-              Create Sprint
-            </button>
-          )}
-        </div>
-      </div>
+      )}
 
       {/* Sprint List */}
       {sprints.length > 0 && (
         <div
-          className={`mt-6 bg-white font-[Poppins] p-6 rounded-lg shadow-md w-full ${
-            isSprintEdited && "pointer-events-none opacity-50"
-          }`}
+          className={`bg-white font-[Poppins] rounded-lg shadow-md w-full 
+          ${isRoleFalse ? "mt-6 p-6" : ""} 
+          ${isSprintEdited ? "pointer-events-none opacity-50" : ""}`}
         >
           <h2 className="text-xl font-bold mb-4">Sprints</h2>
           <div className="space-y-4">
@@ -571,32 +575,39 @@ export const SprintsPage = () => {
                         {getSprintStatusBadge(sprint.sprintStatus)}
                       </div>
                     </div>
-                    <div className="flex justify-center">
-                      {/* Edit and Delete icons */}
-                      <button
-                        onClick={() => handleEditSprintDetails(sprint.sprintId)}
-                        className="p-2 rounded-full transition text-blue-500 hover:bg-blue-100"
-                        title="Edit Sprint"
-                      >
-                        <FiEdit size={20} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteSprint(sprint.sprintId)}
-                        className="text-red-500 hover:bg-red-100"
-                        title="Delete Sprint"
-                      >
-                        <FiTrash2 size={20} />
-                      </button>
-                    </div>
-                    <div className="flex gap-2">
-                      {activeSprint?.sprintId === sprint.sprintId ? (
-                        <button
-                          onClick={() => handleCancelSprint(sprint.sprintId)}
-                          disabled={
-                            sprint.sprintStatus === SprintStatus.COMPLETED ||
-                            sprint.sprintStatus === SprintStatus.CANCELLED
-                          }
-                          className={`font-bold py-2 px-4 rounded-lg transition 
+                    {isRoleFalse && (
+                      <>
+                        <div className="flex justify-center">
+                          {/* Edit and Delete icons */}
+                          <button
+                            onClick={() =>
+                              handleEditSprintDetails(sprint.sprintId)
+                            }
+                            className="p-2 rounded-full transition text-blue-500 hover:bg-blue-100"
+                            title="Edit Sprint"
+                          >
+                            <FiEdit size={20} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSprint(sprint.sprintId)}
+                            className="text-red-500 hover:bg-red-100"
+                            title="Delete Sprint"
+                          >
+                            <FiTrash2 size={20} />
+                          </button>
+                        </div>
+                        <div className="flex gap-2">
+                          {activeSprint?.sprintId === sprint.sprintId ? (
+                            <button
+                              onClick={() =>
+                                handleCancelSprint(sprint.sprintId)
+                              }
+                              disabled={
+                                sprint.sprintStatus ===
+                                  SprintStatus.COMPLETED ||
+                                sprint.sprintStatus === SprintStatus.CANCELLED
+                              }
+                              className={`font-bold py-2 px-4 rounded-lg transition 
                                                     ${
                                                       sprint.sprintStatus ===
                                                         SprintStatus.COMPLETED ||
@@ -605,17 +616,18 @@ export const SprintsPage = () => {
                                                         ? "bg-gray-400 cursor-not-allowed"
                                                         : "bg-yellow-500 text-white hover:bg-yellow-600"
                                                     }`}
-                        >
-                          Cancel
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleSetActiveSprint(sprint)}
-                          disabled={
-                            sprint.sprintStatus === SprintStatus.COMPLETED ||
-                            sprint.sprintStatus === SprintStatus.CANCELLED
-                          }
-                          className={`font-bold py-2 px-4 rounded-lg transition 
+                            >
+                              Cancel
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleSetActiveSprint(sprint)}
+                              disabled={
+                                sprint.sprintStatus ===
+                                  SprintStatus.COMPLETED ||
+                                sprint.sprintStatus === SprintStatus.CANCELLED
+                              }
+                              className={`font-bold py-2 px-4 rounded-lg transition 
                                                     ${
                                                       sprint.sprintStatus ===
                                                         SprintStatus.COMPLETED ||
@@ -624,19 +636,21 @@ export const SprintsPage = () => {
                                                         ? "bg-gray-400 cursor-not-allowed"
                                                         : "bg-gray-200 hover:bg-gray-300"
                                                     }`}
-                        >
-                          Set Active
-                        </button>
-                      )}
+                            >
+                              Set Active
+                            </button>
+                          )}
 
-                      <button
-                        onClick={actionButton.action}
-                        disabled={!actionButton.action}
-                        className={`font-bold py-2 px-4 rounded-lg transition ${actionButton.className}`}
-                      >
-                        {actionButton.text}
-                      </button>
-                    </div>
+                          <button
+                            onClick={actionButton.action}
+                            disabled={!actionButton.action}
+                            className={`font-bold py-2 px-4 rounded-lg transition ${actionButton.className}`}
+                          >
+                            {actionButton.text}
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               );
@@ -698,6 +712,7 @@ export const SprintsPage = () => {
                 )}
                 setIsModalOpen={setIsModalOpen}
                 projectId={projectId}
+                isRoleFalse={isRoleFalse}
                 isCreateEnabled={
                   !!activeSprint &&
                   activeSprint.sprintStatus === SprintStatus.ACTIVE
@@ -731,6 +746,7 @@ const DroppableColumn = ({
   issues,
   setIsModalOpen,
   projectId,
+  isRoleFalse,
   isCreateEnabled = true,
 }) => {
   const { isOver, setNodeRef } = useSortable({
@@ -748,7 +764,7 @@ const DroppableColumn = ({
     >
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
 
-      {id === "TO_DO" && (
+      {isRoleFalse && id === "TO_DO" && (
         <button
           onClick={() => setIsModalOpen(true)}
           disabled={!isCreateEnabled}
@@ -770,6 +786,7 @@ const DroppableColumn = ({
             issue={issue}
             setIsModalOpen={setIsModalOpen}
             projectId={projectId}
+            isRoleFalse={isRoleFalse}
           />
         ))}
       </div>
@@ -777,7 +794,7 @@ const DroppableColumn = ({
   );
 };
 
-const DraggableIssue = ({ issue, setIsModalOpen, projectId }) => {
+const DraggableIssue = ({ issue, setIsModalOpen, projectId, isRoleFalse }) => {
   const {
     attributes,
     listeners,
@@ -865,20 +882,24 @@ const DraggableIssue = ({ issue, setIsModalOpen, projectId }) => {
         </div>
 
         <div className="flex justify-between mb-4">
-          <button
-            className="p-2 rounded-full text-blue-600 hover:bg-blue-100 transition"
-            title="Edit Issue"
-            onClick={handleEditIssue}
-          >
-            <FiEdit size={18} />
-          </button>
-          <button
-            className="p-2 rounded-full text-red-600 hover:bg-red-100 transition"
-            title="Delete Issue"
-            onClick={() => handleDeleteIssue(issue.issueId)}
-          >
-            <FiTrash2 size={18} />
-          </button>
+          {isRoleFalse && (
+            <>
+              <button
+                className="p-2 rounded-full text-blue-600 hover:bg-blue-100 transition"
+                title="Edit Issue"
+                onClick={handleEditIssue}
+              >
+                <FiEdit size={18} />
+              </button>
+              <button
+                className="p-2 rounded-full text-red-600 hover:bg-red-100 transition"
+                title="Delete Issue"
+                onClick={() => handleDeleteIssue(issue.issueId)}
+              >
+                <FiTrash2 size={18} />
+              </button>
+            </>
+          )}
           <button
             onClick={() => setIsCommentModalOpen(true)}
             className="px-3 py-2 text-sm font-medium flex items-center gap-1 rounded-md bg-[#EFB036] text-white hover:bg-[#dfa127] transition"
@@ -908,6 +929,7 @@ const DraggableIssue = ({ issue, setIsModalOpen, projectId }) => {
         onClose={() => setIsViewCommentsOpen(false)}
         issueId={issue.issueId}
         issueTitle={issue?.title}
+        isRoleFalse={isRoleFalse}
       />
     </>
   );

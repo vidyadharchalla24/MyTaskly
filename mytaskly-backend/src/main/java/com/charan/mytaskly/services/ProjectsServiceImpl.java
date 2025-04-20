@@ -106,7 +106,8 @@ public class ProjectsServiceImpl implements ProjectsService{
                         project.getProjectId(),
                         project.getProjectName(),
                         project.getProjectDescription(),
-                        project.getProjectStatus()
+                        project.getProjectStatus(),
+                        "OWNER"
                 ))
                 .collect(Collectors.toList());
     }

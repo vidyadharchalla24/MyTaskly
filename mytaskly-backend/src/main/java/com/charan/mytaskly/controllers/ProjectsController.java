@@ -36,4 +36,5 @@ public class ProjectsController {
     public ResponseEntity<List<ProjectDto>> getProjectByOrganizationName(@PathVariable("organizationName") String organizationName){
         return ResponseEntity.ok(projectsService.getProjectByOrganizationName(organizationName));
     }
+
 }
