@@ -17,4 +17,7 @@ public interface SprintsRepository extends JpaRepository<Sprints,String> {
 
     @Query("SELECT s FROM Sprints s WHERE s.endDate = :date")
     List<Sprints> findSprintsEndingOn(@Param("date") LocalDate date);
+
+    @Query("SELECT DISTINCT s FROM Sprints s JOIN s.issues i WHERE i.assignee.userId =:userId")
+    List<Sprints> findByIssuesAssigneeUserId(@Param("userId") String userId);
 }

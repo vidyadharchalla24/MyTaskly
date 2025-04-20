@@ -20,4 +20,6 @@ public interface SprintsService {
     String deleteSprintBySprintId(String sprintId);
 
     String updateSprintStatus(String sprintId,String sprintStatus);
+
+    List<SprintsDto> getAllSprintsByUserId(String userId);
 }

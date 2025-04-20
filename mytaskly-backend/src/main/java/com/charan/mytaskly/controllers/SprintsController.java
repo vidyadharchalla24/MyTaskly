@@ -54,4 +54,9 @@ public class SprintsController {
         return ResponseEntity.ok(sprintsService.updateSprintStatus(sprintId,sprintStatus));
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<SprintsDto>> getAllSprintsByUserId(@PathVariable String userId){
+        return ResponseEntity.ok(sprintsService.getAllSprintsByUserId(userId));
+    }
+
 }

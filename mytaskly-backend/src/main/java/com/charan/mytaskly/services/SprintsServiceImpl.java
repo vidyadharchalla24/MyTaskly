@@ -115,5 +115,37 @@ public class SprintsServiceImpl implements SprintsService{
         return "Sprint Status Updated Successfully!!";
     }
 
+    @Override
+    public List<SprintsDto> getAllSprintsByUserId(String userId) {
+        List<Sprints> sprintsList = sprintsRepository.findByIssuesAssigneeUserId(userId);
+
+        return sprintsList.stream()
+                .map(sprint -> {
+                    // Convert issues to IssuesDto
+                    List<IssuesDto> issuesDtoList = sprint.getIssues().stream()
+                            .filter(issue -> issue.getAssignee() != null && userId.equals(issue.getAssignee().getUserId()))
+                            .map(issue -> new IssuesDto(
+                                    issue.getIssueId(),
+                                    issue.getTitle(),
+                                    issue.getDescription(),
+                                    issue.getIssueStatus(),
+                                    issue.getIssuePriority(),
+                                    issue.getAssignee() != null ? issue.getAssignee().getEmail() : null,
+                                    issue.getReporter() != null ? issue.getReporter().getEmail() : null
+                            ))
+                            .collect(Collectors.toList());
+
+                    return new SprintsDto(
+                            sprint.getSprintId(),
+                            sprint.getSprintName(),
+                            sprint.getStartDate(),
+                            sprint.getEndDate(),
+                            sprint.getSprintStatus(),
+                            issuesDtoList
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
 
 }

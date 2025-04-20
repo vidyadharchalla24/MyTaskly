@@ -1,11 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState, useRef, useEffect } from "react";
 import HomeImage from "../../assets/home2.png";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaCalendarAlt, FaTimes } from "react-icons/fa";
 import { User } from "lucide-react";
 import CreateOrganization from "../Models/CreateOrganization";
 import CreateProject from "../Models/CreateProject";
 import { UserContext } from "../../context/UserContext";
+import CalendarPopup from "../calender/CalendarPopup";
 
 const Header = () => {
   const location = useLocation();
@@ -16,9 +17,9 @@ const Header = () => {
   const [showOrgModal, setShowOrgModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const dropdownRef = useRef(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const userId = userDetails?.user_id;
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,7 +56,7 @@ const Header = () => {
   return (
     <header className="fixed top-0 w-full bg-[#23486A] shadow-md z-50 p-2">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to={userDetails?'/dashboard':'/'}>
+        <Link to={userDetails ? "/dashboard" : "/"}>
           <img src={HomeImage} alt="Taskly Logo" className="h-10 w-auto" />
         </Link>
 
@@ -68,13 +69,22 @@ const Header = () => {
               {menuOpen ? <FaTimes /> : <FaBars />}
             </button>
             <nav className="md:flex hidden text-white items-center text-base font-[Poppins]">
-              {["home", "about", "features", "pricing", "contact", "testimonials"].map(
-                (item) => (
-                  <button key={item} onClick={()=>handleNavigation(`${item}`)} className="mr-5 text-1xl hover:text-[#EFB036]">
-                    {item.charAt(0).toUpperCase() + item.slice(1)}
-                  </button>
-                )
-              )}
+              {[
+                "home",
+                "about",
+                "features",
+                "pricing",
+                "contact",
+                "testimonials",
+              ].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => handleNavigation(`${item}`)}
+                  className="mr-5 text-1xl hover:text-[#EFB036]"
+                >
+                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                </button>
+              ))}
             </nav>
           </>
         )}
@@ -119,6 +129,14 @@ const Header = () => {
                 Create Project
               </button>
             )}
+
+            <button
+              onClick={() => setShowCalendar(true)}
+              className="text-white text-2xl hover:text-[#EFB036]"
+              title="View Sprint Calendar"
+            >
+              <FaCalendarAlt size={40} />
+            </button>
 
             <button
               onClick={() => setShowDropdown(!showDropdown)}
@@ -168,11 +186,10 @@ const Header = () => {
       )}
 
       {showProjectModal && (
-        <CreateProject  
-          onClose={() => setShowProjectModal(false)}
-        />
+        <CreateProject onClose={() => setShowProjectModal(false)} />
       )}
 
+      {showCalendar && <CalendarPopup onClose={() => setShowCalendar(false)} />}
     </header>
   );
 };
