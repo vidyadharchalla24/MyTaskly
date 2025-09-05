@@ -6,6 +6,7 @@ import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import ProjectCard from "./ProjectCard";
 import { userDetailsFromToken } from "../utils/userDetailsFromToken";
+import CreateProject from "./Models/CreateProject";
 
 const Organization = () => {
   const [data, setData] = useState([]);
@@ -20,6 +21,7 @@ const Organization = () => {
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState("organization");
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const location = useLocation();
 
@@ -27,13 +29,13 @@ const Organization = () => {
     // Fixed the way organizationName is accessed and set
     const orgName = location.state?.organizationName;
     const userId = userDetailsFromToken()?.user_id;
-    if(orgName){
+    if (orgName) {
       setOrganizationName(orgName);
       setViewMode("organization");
       fetchProjectsByOrganizationName(orgName);
-    }else{
+    } else {
       setViewMode("user");
-      if(userId){
+      if (userId) {
         fetchCollaborationsProjectsByUserId(userId);
       }
     }
@@ -69,14 +71,14 @@ const Organization = () => {
       .catch((err) => console.log("Error fetching organizations:", err));
   };
 
-  const goToSprintsPage = (projectId,role) => {
+  const goToSprintsPage = (projectId, role) => {
     navigate(`/SprintsPage/${projectId}/${role}`);
   };
 
-  const isDevRole = (role) =>{
-    if(!role) return true;
-    return role==="DEV";
-  }
+  const isDevRole = (role) => {
+    if (!role) return true;
+    return role === "DEV";
+  };
 
   const handleEdit = (projectId) => {
     // console.log("Edit clicked for project ID:", projectId);
@@ -142,8 +144,16 @@ const Organization = () => {
 
   return (
     <div className="p-6 font-[Poppins]">
+      <div className="flex justify-end ">
+        {viewMode === "organization" && <button
+          onClick={() => setShowCreateModal(true)}
+          className="bg-[#EFB036] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#d49a2f] transition"
+        >
+          + Create Project
+        </button>}
+      </div>
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-      {viewMode === "organization" ? "My Projects" : "Collaboration Projects"}
+        {viewMode === "organization" ? "My Projects" : "Collaboration Projects"}
       </h1>
 
       {successMessage && (
@@ -156,17 +166,17 @@ const Organization = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {data.map((project, index) => (
             <ProjectCard
-            key={project.projectId}
-            project={project}
-            index={index}
-            onEdit={handleEdit}
-            onDeleteClick={handleDeleteClick}
-            onGanttChart={handleGantChartGenration}
-            onViewSprints={goToSprintsPage}
-            onCollaborators={handleCollaborators}
-            loading={loading}
-            role={isDevRole(project.role)}
-          />
+              key={project.projectId}
+              project={project}
+              index={index}
+              onEdit={handleEdit}
+              onDeleteClick={handleDeleteClick}
+              onGanttChart={handleGantChartGenration}
+              onViewSprints={goToSprintsPage}
+              onCollaborators={handleCollaborators}
+              loading={loading}
+              role={isDevRole(project.role)}
+            />
           ))}
         </div>
       ) : (
@@ -207,6 +217,12 @@ const Organization = () => {
           setSuccessMessage={setSuccessMessage}
           organizationName={organizationName}
           setIsProjectUpdated={setIsProjectUpdated}
+        />
+      )}
+
+      { showCreateModal &&(
+        <CreateProject
+          onClose={() => setShowCreateModal(false)}
         />
       )}
     </div>

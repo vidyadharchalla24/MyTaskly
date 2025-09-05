@@ -18,6 +18,7 @@ const Header = () => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const dropdownRef = useRef(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [isCollaborationProjects, setIsCollationProjects] = useState(false);
 
   const userId = userDetails?.user_id;
 
@@ -53,6 +54,16 @@ const Header = () => {
     setMenuOpen(false);
   };
 
+  const handleCollaborationProjects = () =>{
+    setIsCollationProjects(true);
+    navigate("/organization");
+  }
+
+  const handleAuthNavigation = (linkToNavigate)=>{
+    setIsCollationProjects(false);
+    navigate(`${linkToNavigate}`);
+  }
+
   return (
     <header className="fixed top-0 w-full bg-[#23486A] shadow-md z-50 p-2">
       <div className="container mx-auto flex justify-between items-center">
@@ -80,7 +91,7 @@ const Header = () => {
                 <button
                   key={item}
                   onClick={() => handleNavigation(`${item}`)}
-                  className="mr-5 text-1xl hover:text-[#EFB036]"
+                  className="mr-5 text-1xl hover:text-[#EFB036] cursor-pointer"
                 >
                   {item.charAt(0).toUpperCase() + item.slice(1)}
                 </button>
@@ -91,29 +102,29 @@ const Header = () => {
 
         {userDetails ? (
           <div className="relative flex items-center space-y-3 sm:flex-row sm:space-y-0 sm:space-x-5">
-            <Link
-              className="text-white text-1xl bg-[#EFB036] p-1 rounded-lg"
-              to="/dashboard"
+            <p
+              className="text-white text-1xl bg-[#EFB036] p-1 rounded-lg cursor-pointer"
+              onClick={()=> handleAuthNavigation("/dashboard")}
             >
               Dashboard
-            </Link>
-            <Link
-              className="text-white text-1xl bg-[#6774ed] p-1 rounded-lg"
-              to="/upgrade-plan"
+            </p>
+            <p
+              className="text-white text-1xl bg-[#6774ed] p-1 rounded-lg cursor-pointer"
+              onClick={()=> handleAuthNavigation("/upgrade-plan")}
             >
               Plan Upgrade
-            </Link>
-            <Link
-              className="text-white text-1xl bg-[#6774ed] p-1 rounded-lg"
-              to="/organization"
+            </p>
+            <p
+              className="text-white text-1xl bg-[#6774ed] p-1 rounded-lg cursor-pointer"
+              onClick={handleCollaborationProjects}
             >
               Collaboration Projects
-            </Link>
+            </p>
 
             {/* Show Create Organization button only on Dashboard */}
             {location.pathname === "/dashboard" && (
               <button
-                className="text-white text-center text-1xl bg-[#EFB036] p-1 rounded-lg"
+                className="text-white text-center text-1xl bg-[#EFB036] p-1 rounded-lg cursor-pointer"
                 onClick={() => setShowOrgModal(true)}
               >
                 Create Organization
@@ -121,9 +132,9 @@ const Header = () => {
             )}
 
             {/* Show Create Project button only on Organization page */}
-            {location.pathname === "/organization" && (
+            {location.pathname === "/organization" && !isCollaborationProjects && (
               <button
-                className="text-white text-center text-1xl bg-[#EFB036] p-1 rounded-lg"
+                className="text-white text-center text-1xl bg-[#EFB036] p-1 rounded-lg cursor-pointer"
                 onClick={() => setShowProjectModal(true)}
               >
                 Create Project
@@ -132,7 +143,7 @@ const Header = () => {
 
             <button
               onClick={() => setShowCalendar(true)}
-              className="text-white text-2xl hover:text-[#EFB036]"
+              className="text-white text-2xl hover:text-[#EFB036] cursor-pointer"
               title="View Sprint Calendar"
             >
               <FaCalendarAlt size={40} />
@@ -153,14 +164,14 @@ const Header = () => {
               >
                 <Link
                   to="/profile"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer"
                   onClick={() => setShowDropdown(false)}
                 >
                   View Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 cursor-pointer"
                 >
                   Logout
                 </button>
@@ -170,7 +181,7 @@ const Header = () => {
         ) : (
           <Link
             to="/login"
-            className="hidden lg:block bg-[#EFB036] text-white text-xl border-0 py-2 px-4 rounded"
+            className="hidden lg:block bg-[#EFB036] text-white text-xl border-0 py-2 px-4 rounded cursor-pointer"
           >
             Login
           </Link>
